@@ -1,0 +1,8 @@
+[build]
+  publish = "public"
+  # data.js (1 MB of rosters) is carried over from the live site at build time and checked against its fingerprint
+  command = "test -s public/data.js || curl -fsSL https://runthetablenfl.com/data.js -o public/data.js; echo '2737bc51af8fdc2ad69ffc9775dad5b533779f5d2914bce875bb353110a24885  public/data.js' | sha256sum -c -"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
