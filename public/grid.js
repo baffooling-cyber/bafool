@@ -34,8 +34,8 @@ for (const fr of KEYS) for (const y in G.teams[fr]) {
   for (const tok of G.teams[fr][y].split(',')) {
     const pid = parseInt(tok.slice(0, -1), 16), yr = +y;
     let p = P.get(pid);
-    if (!p) { p = { pid, name: G.players[pid][0], ovr: G.players[pid][1], pos: POSN[+tok.slice(-1)], fr: new Set(), y0: yr, y1: yr }; P.set(pid, p); }
-    p.fr.add(fr); if (yr < p.y0) p.y0 = yr; if (yr > p.y1) p.y1 = yr;
+    if (!p) { p = { pid, name: G.players[pid][0], ovr: G.players[pid][1], pos: POSN[+tok.slice(-1)], fr: new Set(), n: {}, y0: yr, y1: yr }; P.set(pid, p); }
+    p.fr.add(fr); p.n[fr] = (p.n[fr] || 0) + 1; if (yr < p.y0) p.y0 = yr; if (yr > p.y1) p.y1 = yr;
   }
 }
 const ALL = [...P.values()];
@@ -66,9 +66,14 @@ const cellTeams = (i) => [GRID.rows[Math.floor(i / 3)], GRID.cols[i % 3]];
 let S = store.get('grid:' + DATE, null);
 if (!S || !Array.isArray(S.cells)) S = { cells: Array(9).fill(null), misses: 0, done: null, tries: 0 };
 if (!Array.isArray(S.pts)) S.pts = Array(9).fill(null);
-if (!Array.isArray(S.before)) S.before = Array(9).fill(null);
+// Rarity: how strongly a player is tied to the two teams in his square.
+// Association = seasons with those two teams x star power (rating), so a longtime star is a
+// household name with those teams and scores low, while a one-year backup is a deep cut worth ~100.
+const star = (ovr) => Math.pow(Math.min(1, Math.max(0.05, (ovr - 45) / 50)), 1.5);
+function rarityPts(i, p) { const [a, b] = cellTeams(i); const assoc = ((p.n[a] || 0) + (p.n[b] || 0)) * star(p.ovr); return Math.max(1, Math.min(100, Math.round(100 / (1 + assoc / 1.2)))); }
+function rarityLabel(pts) { return pts >= 80 ? 'deep cut' : pts >= 50 ? 'rare' : pts >= 25 ? 'solid' : 'household name'; }
+S.pts = S.cells.map((pid, i) => pid == null ? null : rarityPts(i, P.get(pid)));
 const score = () => S.pts.reduce((t, x) => t + (x || 0), 0);
-let pending = false;
 const save = () => store.set('grid:' + DATE, S);
 
 // ---------- ui helpers ----------
@@ -112,7 +117,7 @@ function render() {
     for (let c = 0; c < 3; c++) {
       const i = r * 3 + c, pid = S.cells[i], p = pid != null ? P.get(pid) : null;
       const [a, bb] = cellTeams(i);
-      if (p) b.append(el('button', { class: 'cell ok', 'aria-label': `${teamName(a)} and ${teamName(bb)}: ${p.name}`, disabled: '' }, el('span', { class: 'pn', text: p.name }), el('span', { class: 'yr', text: p.pos + ' · ' + yrs(p) }), el('span', { class: 'rar', text: S.pts[i] == null ? '…' : S.pts[i] + ' pts' + (S.before[i] == null ? '' : ' · ' + rarityLabel(S.before[i])) })));
+      if (p) b.append(el('button', { class: 'cell ok', 'aria-label': `${teamName(a)} and ${teamName(bb)}: ${p.name}`, disabled: '' }, el('span', { class: 'pn', text: p.name }), el('span', { class: 'yr', text: p.pos + ' · ' + yrs(p) }), el('span', { class: 'rar', text: S.pts[i] + ' pts · ' + rarityLabel(S.pts[i]) })));
       else if (S.done) b.append(el('button', { class: 'cell miss', 'aria-label': `${teamName(a)} and ${teamName(bb)}: show answers`, onclick: () => showAnswers(i) }, el('span', { text: answers(a, bb).length + ' answers' }), el('span', { class: 'yr', text: 'Tap to see' })));
       else b.append(el('button', { class: 'cell', 'aria-label': `Guess a player for ${teamName(a)} and ${teamName(bb)}`, onclick: () => openGuess(i) }, el('span', { class: 'plus', text: '+' })));
     }
@@ -156,20 +161,15 @@ function openGuess(i) {
   draw();
   modal(DOWN[S.misses] + ' · ' + a + ' + ' + b, body, [['CANCEL', 'btn-ghost', null]], () => input.focus());
 }
-function rarityLabel(n) { return n === 0 ? 'first pick ever!' : n === 1 ? 'picked once before' : 'picked ' + n + '× before'; }
 async function guess(i, p) {
-  if (S.done || pending) return;
+  if (S.done) return;
   if (S.cells.includes(p.pid)) { toast('Already on your grid. Pick someone else.'); return; }
   const [a, b] = cellTeams(i);
   S.tries++;
   if (p.fr.has(a) && p.fr.has(b)) {
-    S.cells[i] = p.pid; S.pts[i] = null; save(); render();
-    pending = true;
-    try { const r = window.RTTLB ? await RTTLB.pick(p.pid) : null; S.pts[i] = r ? r.points : 50; S.before[i] = r ? r.before : null; }
-    catch (e) { S.pts[i] = 50; S.before[i] = null; }
-    pending = false;
+    S.cells[i] = p.pid; S.pts[i] = rarityPts(i, p);
     if (S.cells.every((x) => x != null)) { S.done = 'win'; save(); render(); touchdown(); return; }
-    save(); render(); toast(`First down! ${p.name}: +${S.pts[i]} points.`);
+    save(); render(); toast(`First down! ${p.name}: +${S.pts[i]} points (${rarityLabel(S.pts[i])}).`);
   } else {
     S.misses++;
     if (S.misses >= MAX) { S.done = 'lose'; save(); render(); turnover(p, a, b); return; }
@@ -198,7 +198,8 @@ function giveUp() {
 function showAnswers(i) {
   const [a, b] = cellTeams(i), all = answers(a, b);
   const box = el('div', { style: 'display:flex;flex-direction:column;gap:6px' });
-  for (const p of all.slice(0, 40)) box.append(el('div', { style: 'display:flex;justify-content:space-between;gap:12px' }, el('span', { text: p.name }), el('span', { style: 'color:var(--muted);font-size:13px;white-space:nowrap', text: p.pos + ' · ' + yrs(p) })));
+  all.sort((x, y) => rarityPts(i, y) - rarityPts(i, x));
+  for (const p of all.slice(0, 40)) box.append(el('div', { style: 'display:flex;justify-content:space-between;gap:12px' }, el('span', { text: p.name }), el('span', { style: 'color:var(--muted);font-size:13px;white-space:nowrap', text: p.pos + ' · ' + yrs(p) + ' · ' + rarityPts(i, p) + ' pts' })));
   if (all.length > 40) box.append(el('p', { style: 'margin:6px 0 0;color:var(--muted)', text: `…and ${all.length - 40} more.` }));
   modal(`${a} + ${b} · ${all.length} ANSWERS`, box, [['CLOSE', 'btn-gold', null]]);
 }
@@ -222,7 +223,7 @@ $('giveBtn').addEventListener('click', giveUp);
 $('helpBtn').addEventListener('click', () => modal('HOW TO PLAY', el('div', {},
   el('p', { style: 'margin:0 0 10px', text: 'Fill every square with a player who played for both the team on his row and the team on his column, at any point from 1970 to 2025.' }),
   el('p', { style: 'margin:0 0 10px', text: 'You get 4 downs. Every wrong guess uses one. Use all 4 and it\'s a turnover on downs. Correct guesses are free.' }),
-  el('p', { style: 'margin:0 0 10px', text: 'Rarity scoring: every correct pick earns up to 100 points, based on how many times that player has been picked by everyone on the site. A player nobody has picked yet is worth 100. Someone picked 10 times before is worth 50. Max score is 900, and you can post it to the global leaderboard.' }),
+  el('p', { style: 'margin:0 0 10px', text: 'Rarity scoring: every correct pick earns up to 100 points based on how strongly that player is tied to the two teams in his square. Longtime stars with those teams (household names) earn only a few points. Backups and short stints (deep cuts) earn up to 100. Max score is 900, and you can post it to the global leaderboard.' }),
   el('p', { style: 'margin:0', text: 'Each player can only be used once. Franchises count across moves, so the Oakland Raiders are the Raiders and the Houston Oilers are the Titans. Everyone gets the same grid, and a new one drops every day at midnight.' })),
   [['GOT IT', 'btn-gold', null]]));
 $('modal').addEventListener('click', (e) => { if (e.target.id === 'modal') closeModal(); });
