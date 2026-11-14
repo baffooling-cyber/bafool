@@ -8,15 +8,16 @@ window.RTTAccount = (function () {
   const MAPS = ['perfect', 'rings', 'daily', 'posted'];
   const GRID_RE = /^grid:\d{4}-\d{2}-\d{2}$/;
   const synced = (k) => SCALARS.includes(k) || LISTS.includes(k) || MAPS.includes(k) || k === 'last' || GRID_RE.test(k);
-  const LABEL = { google: 'Google', apple: 'Apple', discord: 'Discord' };
+  const LABEL = { email: 'Email', google: 'Google', apple: 'Apple', discord: 'Discord' };
   const ICON = {
     google: '<svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>',
     apple: '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.37 12.6c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.82-.81-3-.79-1.54.02-2.97.9-3.76 2.28-1.6 2.78-.41 6.9 1.15 9.16.76 1.1 1.67 2.34 2.86 2.3 1.15-.05 1.58-.74 2.97-.74 1.38 0 1.77.74 2.98.72 1.23-.02 2.01-1.12 2.76-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.4-.92-2.42-3.65zM14.1 5.86c.63-.77 1.06-1.83.94-2.89-.91.04-2.01.61-2.66 1.37-.58.67-1.09 1.75-.95 2.79 1.01.08 2.04-.51 2.67-1.27z"/></svg>',
+    email: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="14"/><path d="m3 7 9 6 9-6"/></svg>',
     discord: '<svg width="18" height="18" viewBox="0 0 24 24" fill="#5865F2" aria-hidden="true"><path d="M20.3 4.4A19.8 19.8 0 0 0 15.4 3l-.6 1.3a18.4 18.4 0 0 0-5.5 0L8.6 3a19.7 19.7 0 0 0-4.9 1.5C.6 9.1-.3 13.6.1 18a19.9 19.9 0 0 0 6 3l1.3-2.1a12.9 12.9 0 0 1-2-1l.5-.4a14.2 14.2 0 0 0 12.2 0l.5.4c-.6.4-1.3.7-2 1l1.3 2.1a19.8 19.8 0 0 0 6-3c.5-5.1-.8-9.6-3.6-13.6zM8 15.3c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4zm8 0c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4z"/></svg>'
   };
 
   // ---------- local storage (with change tracking) ----------
-  let user = null, providers = { google: false, apple: false, discord: false }, dirty = false, pushTimer = null, applying = false;
+  let user = null, providers = { email: true, google: false, apple: false, discord: false }, dirty = false, pushTimer = null, applying = false;
   const raw = {
     get(k) { try { return localStorage.getItem(PREFIX + k); } catch (e) { return null; } },
     set(k, v) { try { localStorage.setItem(PREFIX + k, v); } catch (e) { /* storage unavailable */ } },
@@ -155,6 +156,12 @@ window.RTTAccount = (function () {
 .acct-err{color:var(--red)}
 .acct-foot{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
 .acct-link{background:none;border:0;color:var(--muted);text-decoration:underline;font:inherit;font-size:13px;padding:8px 0;cursor:pointer}
+.acct-or{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted)}.acct-or::before,.acct-or::after{content:'';flex:1;border-top:2px dashed var(--line2)}
+.acct-form{display:flex;flex-direction:column;gap:10px}
+.acct-form label{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--muted)}
+.acct-tabs{display:flex;gap:6px}
+.acct-tab{flex:1;font-family:'Press Start 2P',monospace;font-size:9px;background:var(--panel2);color:#fff;border:2px solid var(--line);padding:10px;min-height:40px;cursor:pointer}
+.acct-tab[aria-pressed=true]{background:var(--acc);color:var(--ink);border-color:var(--acc)}
 .acct-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--gold);color:var(--ink);font-family:'Press Start 2P',monospace;font-size:11px;line-height:1.5;padding:14px 18px;box-shadow:4px 4px 0 #000;z-index:80;max-width:calc(100vw - 32px);text-align:center}
 @media (max-width:640px){.acct-btn{max-width:160px}}`;
   document.head.append(el('style', { text: css }));
@@ -203,15 +210,72 @@ window.RTTAccount = (function () {
       onclick: () => { location.href = loginUrl(p, link); }
     }, el('span', { html: ICON[p], style: 'display:inline-flex' }), el('span', { text: (link ? 'Link ' : 'Continue with ') + LABEL[p] + (on ? '' : ' (coming soon)') }));
   }
-  function showSignIn() {
-    const any = Object.values(providers).some(Boolean);
-    const list = ['google', 'apple', 'discord'].filter((p) => providers[p] || !any);
+  // Email + password form. mode: 'login' | 'signup' | 'link' (add email to the signed-in account)
+  function emailForm(mode, onDone) {
+    const emailIn = el('input', { class: 'acct-in', type: 'email', autocomplete: 'email', required: 'required', maxlength: '254' });
+    const pwIn = el('input', { class: 'acct-in', type: 'password', autocomplete: mode === 'login' ? 'current-password' : 'new-password', required: 'required', minlength: mode === 'login' ? false : '8', maxlength: '200' });
+    const nameIn = el('input', { class: 'acct-in', type: 'text', autocomplete: 'nickname', maxlength: '20' });
+    const msg = el('p', { class: 'acct-err', 'aria-live': 'polite' });
+    const go = el('button', { class: 'btn btn-acc btn-sm', type: 'submit' }, mode === 'login' ? 'SIGN IN' : mode === 'link' ? 'ADD EMAIL' : 'CREATE ACCOUNT');
+    const f = el('form', { class: 'acct-form', novalidate: 'novalidate' },
+      el('label', {}, 'Email', emailIn),
+      mode === 'signup' ? el('label', {}, 'Display name (optional)', nameIn) : null,
+      el('label', {}, mode === 'login' ? 'Password' : 'Password (8+ characters)', pwIn),
+      msg, el('div', {}, go));
+    f.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (go.disabled) return;
+      msg.textContent = ''; go.disabled = true;
+      try {
+        const path = mode === 'login' ? '/auth/email/login' : '/auth/email/signup';
+        const r = await post(path, { email: emailIn.value, password: pwIn.value, name: nameIn.value, link: mode === 'link' });
+        onDone(r.user);
+      } catch (err) { msg.textContent = err.message; go.disabled = false; }
+    });
+    return f;
+  }
+  function afterEmailSignIn(u, verb) {
+    // Same steps as coming back from Google/Apple/Discord: reload so the merge and redraw run fresh.
+    const q = new URLSearchParams(location.search); q.set('signedin', 'email');
+    location.href = location.pathname + '?' + q.toString() + location.hash;
+  }
+  function showSignIn(startMode) {
+    let mode = startMode || 'login';
+    const oauth = ['google', 'apple', 'discord'].filter((p) => providers[p]);
+    const box = el('div');
+    const tabs = el('div', { class: 'acct-tabs', role: 'group', 'aria-label': 'Email sign-in' });
+    function draw() {
+      tabs.replaceChildren(
+        el('button', { class: 'acct-tab', type: 'button', 'aria-pressed': String(mode === 'login'), onclick: () => { mode = 'login'; draw(); } }, 'SIGN IN'),
+        el('button', { class: 'acct-tab', type: 'button', 'aria-pressed': String(mode === 'signup'), onclick: () => { mode = 'signup'; draw(); } }, 'NEW ACCOUNT'));
+      box.replaceChildren(emailForm(mode, afterEmailSignIn));
+      const f = box.querySelector('input'); if (f) f.focus();
+    }
     open('SIGN IN',
       el('p', { text: 'Make a free account to save your seasons, perfect runs, rings and daily results, and pick up on any device.' }),
-      el('div', { style: 'display:flex;flex-direction:column;gap:12px' }, ...list.map((p) => providerButton(p, false))),
-      any ? null : el('p', { class: 'acct-err', text: 'Sign-in is being set up and will be available soon.' }),
+      oauth.length ? el('div', { style: 'display:flex;flex-direction:column;gap:12px' }, ...oauth.map((p) => providerButton(p, false))) : null,
+      oauth.length ? el('div', { class: 'acct-or', text: 'or use email' }) : null,
+      tabs, box,
       el('p', { style: 'font-size:13px;color:var(--muted)', text: 'Stats you already have on this device are added to your account when you sign in. You can link more sign-in methods later.' }),
       el('div', { class: 'acct-foot' }, el('button', { class: 'btn btn-ghost btn-sm', style: 'border-width:2px', type: 'button', onclick: close }, 'NOT NOW')));
+    draw();
+  }
+  function showAddEmail() {
+    open('ADD EMAIL SIGN-IN',
+      el('p', { text: 'Add an email and password so you can sign in to this same account without ' + user.providers.filter((p) => p !== 'email').map((p) => LABEL[p]).join(' or ') + '.' }),
+      emailForm('link', (u) => { user = u; renderButton(); toast('Email added to your account'); showAccount(); }),
+      el('div', { class: 'acct-foot' }, el('button', { class: 'btn btn-ghost btn-sm', style: 'border-width:2px', type: 'button', onclick: showAccount }, 'BACK')));
+  }
+  function showPassword() {
+    const pwIn = el('input', { class: 'acct-in', type: 'password', autocomplete: 'new-password', minlength: '8', maxlength: '200' });
+    const msg = el('p', { class: 'acct-err', 'aria-live': 'polite' });
+    const f = el('form', { class: 'acct-form' }, el('label', {}, 'New password (8+ characters)', pwIn), msg,
+      el('div', {}, el('button', { class: 'btn btn-acc btn-sm', type: 'submit' }, 'SAVE PASSWORD')));
+    f.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try { await post('/me/password', { password: pwIn.value }); toast('Password changed'); showAccount(); } catch (err) { msg.textContent = err.message; }
+    });
+    open('CHANGE PASSWORD', f, el('div', { class: 'acct-foot' }, el('button', { class: 'btn btn-ghost btn-sm', style: 'border-width:2px', type: 'button', onclick: showAccount }, 'BACK')));
   }
 
   function summary() {
@@ -248,8 +312,16 @@ window.RTTAccount = (function () {
     };
     nameIn.addEventListener('keydown', (e) => { if (e.key === 'Enter') saveName(); });
     const linkedCount = user.providers.length;
-    const rows = ['google', 'apple', 'discord'].map((p) => {
+    const rows = ['email', 'google', 'apple', 'discord'].map((p) => {
       const id = user.identities[p];
+      if (p === 'email') {
+        const who = el('div', { class: 'who' }, el('b', { text: 'Email' }), el('span', { text: id ? 'Linked · ' + id.email : 'Not linked' }));
+        const acts = id
+          ? [el('button', { class: 'acct-mini', type: 'button', onclick: showPassword }, 'PASSWORD'),
+            el('button', { class: 'acct-mini', type: 'button', disabled: linkedCount < 2 ? 'disabled' : false, title: linkedCount < 2 ? 'Link another sign-in first' : '', onclick: () => unlink(p) }, 'UNLINK')]
+          : [el('button', { class: 'acct-mini go', type: 'button', onclick: showAddEmail }, 'ADD')];
+        return el('div', { class: 'acct-row', style: 'flex-wrap:wrap' }, el('span', { html: ICON[p], style: 'display:inline-flex;color:#fff' }), who, ...acts);
+      }
       const who = el('div', { class: 'who' }, el('b', { text: LABEL[p] }), el('span', { text: id ? ('Linked' + (id.email ? ' · ' + id.email : id.name ? ' · ' + id.name : '')) : (providers[p] ? 'Not linked' : 'Coming soon') }));
       const action = id
         ? el('button', { class: 'acct-mini', type: 'button', disabled: linkedCount < 2 ? 'disabled' : false, title: linkedCount < 2 ? 'Link another sign-in first' : '', onclick: () => unlink(p) }, 'UNLINK')
@@ -321,6 +393,7 @@ window.RTTAccount = (function () {
       if (result.error) toast(result.error, 5000);
       else if (result.linked && user) toast(LABEL[result.linked] + ' linked to your account');
       else if (result.signedin && user) toast('Signed in as ' + user.name);
+      else if (result.signedin === 'email' && !user) toast('Sign-in did not stick. Check that cookies are allowed for this site.', 5000);
     };
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
     return user;
