@@ -601,7 +601,7 @@ const ST = statsInit(S.picks), sr = rng(S.seed + '|stats|' + S.picks.length + '|
   $('skipBtn').classList.add('hidden');
   // records
   const rec = { fr: S.fr, w, l, ovr: T, result, seq: seq.join(''), date: S.date, mode: S.mode, ring };
-  S.stats = statsPack(ST); store.set('last', Object.assign({ stats: S.stats }, rec));
+  S.stats = statsPack(ST); store.set('last', Object.assign({ stats: S.stats, ts: Date.now() }, rec));
   const h = store.get('history', []); h.push(rec); store.set('history', h.slice(-200));
   if (w === 17) { const p = store.get('perfect', {}); p[S.fr] = S.date; store.set('perfect', p); }
   if (ring) { const p = store.get('rings', {}); p[S.fr] = S.date; store.set('rings', p); }
@@ -1031,5 +1031,7 @@ $('dailyBtn').parentElement.append(el('button', { id: 'fantasyBtn', class: 'btn 
 buildWheel();
 renderHome();
 initShared();
+// Account sync brought in stats from another device: redraw the home screen if it's showing.
+window.addEventListener('rtt:synced', () => { if (!$('view-home').classList.contains('hidden')) renderHome(); });
 window.__rtt = { get S() { return S; }, teamRating, roster, YEARS };
 })();

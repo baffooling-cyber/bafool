@@ -75,6 +75,8 @@ function rarityLabel(pts) { return pts >= 80 ? 'deep cut' : pts >= 50 ? 'rare' :
 S.pts = S.cells.map((pid, i) => pid == null ? null : rarityPts(i, P.get(pid)));
 const score = () => S.pts.reduce((t, x) => t + (x || 0), 0);
 const save = () => store.set('grid:' + DATE, S);
+// Account sync brought in today's grid from another device: reload to show it.
+window.addEventListener('rtt:synced', (e) => { if (e.detail.changed.includes('grid:' + DATE)) location.reload(); });
 
 // ---------- ui helpers ----------
 function el(tag, attrs, ...kids) {
