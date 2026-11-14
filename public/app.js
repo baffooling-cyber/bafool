@@ -438,17 +438,20 @@ async function resetYear() {
   await rollYear(years, ny, $('quickSpin').checked ? 500 : 1200);
   sp.y = ny; sp.phase = 'picking'; busy = false; posFilter = 'OPEN'; $('search').value = ''; renderDraft();
 }
-// Team Reset: once per spin, re-spin the franchise (and land on one of its seasons)
+// Team Reset: once per spin, re-spin the franchise but keep the same season
 async function resetTeam() {
   const sp = S.spin;
   if (busy || sp.teamUsed || !(sp.phase === 'picking' || sp.phase === 'picked')) return;
   const r = rng(S.seed + '|spin|' + S.picks.length + '|team|' + (sp.free || 0));
-  const nf = pick(r, FR_KEYS.filter((f) => f !== sp.fr && YEARS[f] && YEARS[f].length)), ny = pick(r, YEARS[nf]);
+  const others = FR_KEYS.filter((f) => f !== sp.fr && YEARS[f] && YEARS[f].length);
+  const sameYear = others.filter((f) => YEARS[f].includes(sp.y));
+  // Only fall back to a different season if no other franchise has this one
+  const nf = pick(r, sameYear.length ? sameYear : others), ny = sameYear.length ? sp.y : pick(r, YEARS[nf]);
   sp.teamUsed = true; sp.pending = null; busy = true; sp.phase = 'spinning'; renderDraft();
   beep(520, .08);
   const quick = $('quickSpin').checked, ms = spinWheelTo(nf, quick);
   $('rTeam').textContent = '…';
-  await Promise.all([new Promise((res) => setTimeout(res, ms)), rollYear(YEARS[nf], ny, ms + (quick ? 100 : 300))]);
+  await Promise.all([new Promise((res) => setTimeout(res, ms)), ny !== sp.y ? rollYear(YEARS[nf], ny, ms + (quick ? 100 : 300)) : null]);
   $('rTeam').textContent = nf;
   sp.fr = nf; sp.y = ny; sp.phase = 'picking'; busy = false; posFilter = 'OPEN'; $('search').value = ''; renderDraft();
 }
