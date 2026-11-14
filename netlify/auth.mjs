@@ -284,7 +284,9 @@ export async function handleAuth(req, route, store, env = process.env, f = fetch
     const st = unseal(key, cookies(req)[STATE_COOKIE]);
     const form = req.method === 'POST' ? new URLSearchParams(await req.text()) : url.searchParams;
     const base = ((st && st.ret) || '/').split('#')[0];
-    const back = (msg, extra = []) => redirect(base + (base.includes('?') ? '&' : '?') + msg, [clearCookie(STATE_COOKIE, 'None'), ...extra]);
+    // Send at most ONE Set-Cookie per response: some hosts merge several into one header and the
+    // browser then drops the session cookie. The short-lived state cookie just expires on its own.
+    const back = (msg, extra = []) => redirect(base + (base.includes('?') ? '&' : '?') + msg, extra.length ? extra : [clearCookie(STATE_COOKIE, 'None')]);
     if (!st || st.provider !== name || form.get('state') !== st.state) return back('signin_error=' + encodeURIComponent('Sign-in expired. Please try again.'));
     if (form.get('error')) return back('signin_error=' + encodeURIComponent(form.get('error') === 'access_denied' || form.get('error') === 'user_cancelled_authorize' ? 'Sign-in was cancelled.' : 'Sign-in failed.'));
     const code = form.get('code');
@@ -321,6 +323,7 @@ export async function handleAuth(req, route, store, env = process.env, f = fetch
       u.identities[name].name = identity.name;
       await store.setJSON('u/' + u.id, u);
     }
+    console.log('oauth ok', name, u.id);
     return back('signedin=' + name, [sessionCookie(key, u.id)]);
   }
 
