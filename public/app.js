@@ -162,7 +162,7 @@ function playGame(r, T, opp, home, bump) {
 
 // ---------- state ----------
 let S = null; // current run
-const freshSpin = () => ({ fr: null, y: null, yearUsed: false, playerUsed: false, pending: null, phase: 'ready', free: 0 });
+const freshSpin = () => ({ fr: null, y: null, yearUsed: false, teamUsed: false, pending: null, phase: 'ready', free: 0 });
 function newRun(mode, fr) {
   const date = todayStr();
   const seed = mode === 'daily' ? 'daily|' + date : 'free|' + Date.now() + '|' + Math.random();
@@ -306,17 +306,17 @@ function renderDraft() {
   if (busy) sb.disabled = true;
   const canYear = !busy && !sp.yearUsed && (sp.phase === 'picking' || sp.phase === 'picked') && YEARS[sp.fr] && YEARS[sp.fr].length > 1;
   $('resetYearBtn').disabled = !canYear; $('ryCt').textContent = sp.yearUsed ? '0' : '1';
-  $('resetPlayerBtn').disabled = busy || sp.playerUsed || sp.phase !== 'picked'; $('rpCt').textContent = sp.playerUsed ? '0' : '1';
+  $('resetTeamBtn').disabled = busy || sp.teamUsed || !(sp.phase === 'picking' || sp.phase === 'picked'); $('rtCt').textContent = sp.teamUsed ? '0' : '1';
   const msg = $('dMsg');
   let elig = 0;
   if (sp.fr && sp.phase !== 'ready') elig = draftRoster(sp.fr, sp.y).filter(eligible).length;
   if (busy) msg.textContent = 'Spinning…';
 else if (n >= total()) msg.textContent = isF() ? 'Lineup set. Hit Play Fantasy Season.' : 'Roster full. Hit Play the Season.';
   else if (sp.phase === 'ready') msg.textContent = n === 0 ? 'Spin to see who you draft from first.' : 'Spin for your next team and season.';
-  else if (sp.phase === 'picking' && elig === 0) msg.textContent = sp.yearUsed ? 'Nobody on this roster fits an open spot. Take a free re-spin.' : 'Nobody on this roster fits an open spot. Use your Year Reset.';
-  else if (sp.phase === 'picking') msg.textContent = sp.playerUsed ? 'Player Reset used. Choose your replacement pick.' : 'Pick one player for an open spot on your roster.';
+  else if (sp.phase === 'picking' && elig === 0) msg.textContent = sp.yearUsed && sp.teamUsed ? 'Nobody on this roster fits an open spot. Take a free re-spin.' : 'Nobody on this roster fits an open spot. Use a Year Reset or Team Reset.';
+  else if (sp.phase === 'picking') msg.textContent = 'Pick one player for an open spot on your roster.';
   else if (sp.phase === 'picked') msg.textContent = `Drafted ${sp.pending.name} (${sp.pending.pos}). Lock it in, or use a reset.`;
-  renderFreeSpin(sp.phase === 'picking' && elig === 0 && sp.yearUsed);
+  renderFreeSpin(sp.phase === 'picking' && elig === 0 && sp.yearUsed && sp.teamUsed);
 const af = $('autoFillBtn');
 if (af) { af.disabled = busy || openSpots() <= 0; af.textContent = (n === 0 && !sp.pending) ? '⚡ RANDOM ROSTER' : '⚡ AUTO-FILL REST'; }
   renderList(); renderDepth(); save();
@@ -438,10 +438,19 @@ async function resetYear() {
   await rollYear(years, ny, $('quickSpin').checked ? 500 : 1200);
   sp.y = ny; sp.phase = 'picking'; busy = false; posFilter = 'OPEN'; $('search').value = ''; renderDraft();
 }
-function resetPlayer() {
+// Team Reset: once per spin, re-spin the franchise (and land on one of its seasons)
+async function resetTeam() {
   const sp = S.spin;
-  if (busy || sp.playerUsed || sp.phase !== 'picked') return;
-  sp.playerUsed = true; sp.pending = null; sp.phase = 'picking'; beep(220, .15); renderDraft();
+  if (busy || sp.teamUsed || !(sp.phase === 'picking' || sp.phase === 'picked')) return;
+  const r = rng(S.seed + '|spin|' + S.picks.length + '|team|' + (sp.free || 0));
+  const nf = pick(r, FR_KEYS.filter((f) => f !== sp.fr && YEARS[f] && YEARS[f].length)), ny = pick(r, YEARS[nf]);
+  sp.teamUsed = true; sp.pending = null; busy = true; sp.phase = 'spinning'; renderDraft();
+  beep(520, .08);
+  const quick = $('quickSpin').checked, ms = spinWheelTo(nf, quick);
+  $('rTeam').textContent = '…';
+  await Promise.all([new Promise((res) => setTimeout(res, ms)), rollYear(YEARS[nf], ny, ms + (quick ? 100 : 300))]);
+  $('rTeam').textContent = nf;
+  sp.fr = nf; sp.y = ny; sp.phase = 'picking'; busy = false; posFilter = 'OPEN'; $('search').value = ''; renderDraft();
 }
 function freeSpin() { const sp = S.spin; sp.free++; doSpin('free' + sp.free); }
 function finishDraft() {
@@ -992,7 +1001,7 @@ $('randomTeamBtn').addEventListener('click', () => startFree(pick(Math.random, F
 $('resumeBtn').addEventListener('click', () => { S = store.get('run', null); if (S) openDraft(); });
 $('spinBtn').addEventListener('click', onSpinBtn);
 $('resetYearBtn').addEventListener('click', resetYear);
-$('resetPlayerBtn').addEventListener('click', resetPlayer);
+$('resetTeamBtn').addEventListener('click', resetTeam);
 $('search').addEventListener('input', renderList);
 $('showRatings').addEventListener('change', (e) => { S.showRatings = e.target.checked; renderDraft(); });
 $('quickSpin').addEventListener('change', (e) => store.set('quick', e.target.checked));
