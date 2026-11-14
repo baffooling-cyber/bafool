@@ -7,7 +7,9 @@
 //   config/secret      -> { key }            (session-signing key, made on first use if SESSION_SECRET is unset)
 //
 // Routes (all under /api/):
-//   GET  /api/auth/providers            -> { google, apple, discord } (true when that sign-in is configured)
+//   GET  /api/auth/providers            -> { email, google, apple, discord } (true when that sign-in is available)
+//   POST /api/auth/email/signup { email, password, name, link } -> { user }  (link: add email to the signed-in account)
+//   POST /api/auth/email/login  { email, password }             -> { user }
 //   GET  /api/auth/login/<provider>     -> redirect to the provider (?link=1 to add it to the signed-in account, ?return=/path)
 //   GET|POST /api/auth/callback/<provider>
 //   POST /api/auth/logout
@@ -15,6 +17,7 @@
 //   PUT  /api/me/stats   { stats }      -> { ok, updated }
 //   POST /api/me/name    { name }       -> { user }
 //   POST /api/me/unlink  { provider }   -> { user }
+//   POST /api/me/password { password }  -> { ok }   (change the email sign-in password)
 //   POST /api/me/delete                 -> { ok }
 import crypto from 'node:crypto';
 
@@ -22,6 +25,27 @@ const SESSION_COOKIE = 'rtt_sess';
 const STATE_COOKIE = 'rtt_oauth';
 const SESSION_DAYS = 180;
 const MAX_STATS = 600_000;
+const EMAIL_RE = /^[^\s@<>]{1,64}@[^\s@<>]{1,190}\.[a-z]{2,}$/i;
+const MAX_FAILS = 8, LOCK_MIN = 15;
+
+// ---------- email + password ----------
+const scrypt = (pw, salt) => new Promise((ok, no) => crypto.scrypt(pw, salt, 64, { N: 16384, r: 8, p: 1 }, (e, k) => (e ? no(e) : ok(k))));
+async function hashPassword(pw) {
+  const salt = crypto.randomBytes(16);
+  return { salt: salt.toString('base64'), hash: (await scrypt(pw, salt)).toString('base64') };
+}
+async function checkPassword(pw, rec) {
+  const got = await scrypt(pw, Buffer.from(rec.salt, 'base64'));
+  const want = Buffer.from(rec.hash, 'base64');
+  return got.length === want.length && crypto.timingSafeEqual(got, want);
+}
+const DUMMY = { salt: Buffer.alloc(16).toString('base64'), hash: Buffer.alloc(64).toString('base64') };
+const normEmail = (e) => String(e || '').trim().toLowerCase().slice(0, 254);
+function passwordProblem(pw) {
+  if (typeof pw !== 'string' || pw.length < 8) return 'Use at least 8 characters for your password.';
+  if (pw.length > 200) return 'That password is too long.';
+  return null;
+}
 
 export const PROVIDERS = {
   google: {
@@ -182,7 +206,54 @@ export async function handleAuth(req, route, store, env = process.env, f = fetch
   const origin = url.origin;
 
   if (route === 'auth/providers' && req.method === 'GET') {
-    return json(Object.fromEntries(Object.entries(PROVIDERS).map(([k, p]) => [k, p.configured(env)])));
+    return json({ email: true, ...Object.fromEntries(Object.entries(PROVIDERS).map(([k, p]) => [k, p.configured(env)])) });
+  }
+
+  if ((route === 'auth/email/signup' || route === 'auth/email/login') && req.method === 'POST') {
+    if (!sameOrigin(req)) return json({ error: 'Bad origin' }, 403);
+    const text = await req.text();
+    if (text.length > 4000) return json({ error: 'Bad request' }, 400);
+    let b; try { b = JSON.parse(text || '{}'); } catch (e) { return json({ error: 'Bad request' }, 400); }
+    const email = normEmail(b.email);
+    if (!EMAIL_RE.test(email)) return json({ error: 'Enter a valid email address.' }, 400);
+    const key = await signingKey(store, env);
+    const idKey = 'i/email/' + email;
+
+    if (route === 'auth/email/signup') {
+      const bad = passwordProblem(b.password);
+      if (bad) return json({ error: bad }, 400);
+      if (await store.get(idKey, { type: 'json' })) return json({ error: 'That email already has an account. Sign in instead.' }, 409);
+      const identity = { sub: email, email, name: '', linked: Date.now(), ...(await hashPassword(b.password)) };
+      let u = b.link ? await currentUser(req, store, key) : null;
+      const oldEmail = u && u.identities.email ? u.identities.email.sub : null;
+      if (u) {
+        u.identities.email = identity;
+      } else {
+        const id = crypto.randomUUID();
+        u = { id, name: clean(b.name, 20) || email.split('@')[0].slice(0, 20), created: Date.now(), identities: { email: identity } };
+      }
+      const claim = await store.setJSON(idKey, { uid: u.id }, { onlyIfNew: true });
+      if (claim && claim.modified === false) return json({ error: 'That email already has an account. Sign in instead.' }, 409);
+      if (oldEmail && oldEmail !== email) await store.delete('i/email/' + oldEmail);
+      await store.setJSON('u/' + u.id, u);
+      return json({ user: publicUser(u) }, 200, { 'set-cookie': sessionCookie(key, u.id) });
+    }
+
+    // login
+    const rlKey = 'rl/' + email;
+    const rl = (await store.get(rlKey, { type: 'json' })) || { n: 0, until: 0 };
+    if (rl.until > Date.now()) return json({ error: `Too many wrong passwords. Try again in ${Math.ceil((rl.until - Date.now()) / 60000)} minutes.` }, 429);
+    const owner = await store.get(idKey, { type: 'json' });
+    const u = owner && await store.get('u/' + owner.uid, { type: 'json' });
+    const rec = u && u.identities.email && u.identities.email.sub === email ? u.identities.email : null;
+    const ok = await checkPassword(String(b.password || '').slice(0, 200), rec || DUMMY) && !!rec;
+    if (!ok) {
+      const n = rl.n + 1;
+      await store.setJSON(rlKey, n >= MAX_FAILS ? { n: 0, until: Date.now() + LOCK_MIN * 60e3 } : { n, until: 0 });
+      return json({ error: 'Wrong email or password.' }, 401);
+    }
+    if (rl.n) await store.delete(rlKey);
+    return json({ user: publicUser(u) }, 200, { 'set-cookie': sessionCookie(key, u.id) });
   }
 
   let m = route.match(/^auth\/login\/(google|apple|discord)$/);
@@ -296,6 +367,14 @@ export async function handleAuth(req, route, store, env = process.env, f = fetch
       delete u.identities[p];
       await store.setJSON('u/' + u.id, u);
       return json({ user: publicUser(u) });
+    }
+    if (route === 'me/password' && req.method === 'POST') {
+      if (!u.identities.email) return json({ error: 'Add an email sign-in first.' }, 400);
+      const bad = passwordProblem(body.password);
+      if (bad) return json({ error: bad }, 400);
+      Object.assign(u.identities.email, await hashPassword(body.password));
+      await store.setJSON('u/' + u.id, u);
+      return json({ ok: true });
     }
     if (route === 'me/delete' && req.method === 'POST') {
       for (const [p, v] of Object.entries(u.identities)) await store.delete(`i/${p}/${v.sub}`);
