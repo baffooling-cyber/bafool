@@ -256,7 +256,7 @@ window.RTTAccount = (function () {
       oauth.length ? el('div', { style: 'display:flex;flex-direction:column;gap:12px' }, ...oauth.map((p) => providerButton(p, false))) : null,
       oauth.length ? el('div', { class: 'acct-or', text: 'or use email' }) : null,
       tabs, box,
-      el('p', { style: 'font-size:13px;color:var(--muted)', text: 'Stats you already have on this device are added to your account when you sign in. You can link more sign-in methods later.' }),
+      el('p', { style: 'font-size:13px;color:var(--muted)', text: 'Stats you already have on this device are added to your account when you sign in. You can link more sign-in methods later. ' }, el('a', { href: '/privacy.html', text: 'Privacy policy' })),
       el('div', { class: 'acct-foot' }, el('button', { class: 'btn btn-ghost btn-sm', style: 'border-width:2px', type: 'button', onclick: close }, 'NOT NOW')));
     draw();
   }
