@@ -3,7 +3,9 @@
 //   POST /api/pick   { pid }                      -> { before, count, points }
 //   POST /api/score  { game, name, date, ...run } -> { ok, entry }
 //   GET  /api/board?game=grid&scope=today|all&date=YYYY-MM-DD -> { entries }
+//   /api/auth/* and /api/me*  -> player accounts (see ../auth.mjs)
 import { getStore } from '@netlify/blobs';
+import { handleAuth } from '../auth.mjs';
 
 const GAMES = ['table', 'fantasy', 'grid'];
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -60,6 +62,15 @@ async function readBody(req) {
 export async function handle(req, stores) {
   const url = new URL(req.url);
   const route = url.pathname.replace(/^\/api\/?/, '').replace(/\/$/, '');
+  if (stores.users && (route.startsWith('auth/') || route === 'me' || route.startsWith('me/'))) {
+    try {
+      const res = await handleAuth(req, route, stores.users);
+      if (res) return res;
+    } catch (e) {
+      console.error('account', route, e);
+      return json({ error: 'Account service error, try again' }, 500);
+    }
+  }
   try {
     if (route === 'pick' && req.method === 'POST') {
       const b = await readBody(req);
@@ -102,7 +113,8 @@ export async function handle(req, stores) {
 
 export default async (req) => handle(req, {
   picks: getStore({ name: 'rtt-picks', consistency: 'strong' }),
-  scores: getStore({ name: 'rtt-scores', consistency: 'strong' })
+  scores: getStore({ name: 'rtt-scores', consistency: 'strong' }),
+  users: getStore({ name: 'rtt-users', consistency: 'strong' })
 });
 
 export const config = { path: '/api/*' };
