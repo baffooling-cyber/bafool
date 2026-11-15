@@ -30,8 +30,12 @@ const store = {
 
 // ---------- index every player's franchises ----------
 const P = new Map(); // pid -> { pid, name, fr:Set, y0, y1, ovr, pos }
-for (const fr of KEYS) for (const y in G.teams[fr]) {
-  for (const tok of G.teams[fr][y].split(',')) {
+// Past seasons (G.teams) plus the season in progress (G.now), which only the grid uses.
+const SEASONS = [];
+for (const fr of KEYS) for (const y in G.teams[fr]) SEASONS.push([fr, y, G.teams[fr][y]]);
+if (G.now) for (const fr of KEYS) if (G.now.teams[fr]) SEASONS.push([fr, String(G.now.season), G.now.teams[fr]]);
+for (const [fr, y, list] of SEASONS) {
+  for (const tok of list.split(',')) {
     const pid = parseInt(tok.slice(0, -1), 16), yr = +y;
     let p = P.get(pid);
     if (!p) { p = { pid, name: G.players[pid][0], ovr: G.players[pid][1], pos: POSN[+tok.slice(-1)], fr: new Set(), n: {}, y0: yr, y1: yr }; P.set(pid, p); }
@@ -214,7 +218,7 @@ $('postBtn').addEventListener('click', postGrid);
 const lbw = window.RTTLB ? RTTLB.mount($('gridBoard'), 'grid') : null;
 $('giveBtn').addEventListener('click', giveUp);
 $('helpBtn').addEventListener('click', () => modal('HOW TO PLAY', el('div', {},
-  el('p', { style: 'margin:0 0 10px', text: 'Fill every square with a player who played for both the team on his row and the team on his column, at any point from 1970 to 2025.' }),
+  el('p', { style: 'margin:0 0 10px', text: 'Fill every square with a player who played for both the team on his row and the team on his column, at any point from 1970 through this season.' }),
   el('p', { style: 'margin:0 0 10px', text: 'You get 4 downs. Every wrong guess uses one. Use all 4 and it\'s a turnover on downs. Correct guesses are free.' }),
   el('p', { style: 'margin:0 0 10px', text: 'Rarity scoring: every correct pick earns up to 100 points based on how strongly that player is tied to the two teams in his square. Longtime stars with those teams (household names) earn only a few points. Backups and short stints (deep cuts) earn up to 100. Max score is 900, and you can post it to the global leaderboard.' }),
   el('p', { style: 'margin:0', text: 'Each player can only be used once. Franchises count across moves, so the Oakland Raiders are the Raiders and the Houston Oilers are the Titans. Everyone gets the same grid, and a new one drops every day at midnight.' })),
