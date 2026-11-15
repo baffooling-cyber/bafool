@@ -39,11 +39,10 @@ for (const fr of KEYS) for (const y in G.teams[fr]) {
   }
 }
 const ALL = [...P.values()];
-const norm = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim();
+const norm = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9 ]/g, '').replace(/\b(jr|sr|ii|iii|iv)\b/g, '').replace(/\s+/g, ' ').trim();
 ALL.forEach((p) => { p.key = norm(p.name); });
 const pairCount = {};
 for (const p of ALL) { const f = [...p.fr]; for (let i = 0; i < f.length; i++) for (let j = 0; j < f.length; j++) if (i !== j) { const k = f[i] + '|' + f[j]; pairCount[k] = (pairCount[k] || 0) + 1; } }
-const answers = (a, b) => ALL.filter((p) => p.fr.has(a) && p.fr.has(b)).sort((x, y) => y.ovr - x.ovr);
 
 // ---------- today's grid: same for everyone, new every day ----------
 function makeGrid(date) {
@@ -120,7 +119,7 @@ function render() {
       const i = r * 3 + c, pid = S.cells[i], p = pid != null ? P.get(pid) : null;
       const [a, bb] = cellTeams(i);
       if (p) b.append(el('button', { class: 'cell ok', 'aria-label': `${teamName(a)} and ${teamName(bb)}: ${p.name}`, disabled: '' }, el('span', { class: 'pn', text: p.name }), el('span', { class: 'yr', text: p.pos + ' · ' + yrs(p) }), el('span', { class: 'rar', text: S.pts[i] + ' pts · ' + rarityLabel(S.pts[i]) })));
-      else if (S.done) b.append(el('button', { class: 'cell miss', 'aria-label': `${teamName(a)} and ${teamName(bb)}: show answers`, onclick: () => showAnswers(i) }, el('span', { text: answers(a, bb).length + ' answers' }), el('span', { class: 'yr', text: 'Tap to see' })));
+      else if (S.done) b.append(el('div', { class: 'cell miss', role: 'img', 'aria-label': `${teamName(a)} and ${teamName(bb)}: not filled` }, el('span', { class: 'plus', text: '—' })));
       else b.append(el('button', { class: 'cell', 'aria-label': `Guess a player for ${teamName(a)} and ${teamName(bb)}`, onclick: () => openGuess(i) }, el('span', { class: 'plus', text: '+' })));
     }
   }
@@ -184,8 +183,8 @@ function turnover(p, a, b) {
   modal('TURNOVER ON DOWNS', el('div', {},
     el('p', { class: 'tod', text: 'TURNOVER ON DOWNS' }),
     el('p', { style: 'margin:0 0 8px', text: `${p.name} never played for both the ${FR[a][1]} and the ${FR[b][1]}. That was your 4th down.` }),
-    el('p', { style: 'margin:0', text: `You filled ${filled} of 9 for ${score()} rarity points. Tap any empty square to see who would have worked. A new grid drops at midnight.` })),
-  [['POST TO LEADERBOARD', 'btn-acc', postGrid], ['SEE ANSWERS', 'btn-gold', null], ['COPY RESULT', 'btn-ghost', share]]);
+    el('p', { style: 'margin:0', text: `You filled ${filled} of 9 for ${score()} rarity points. A new grid drops at midnight.` })),
+  [['POST TO LEADERBOARD', 'btn-acc', postGrid], ['COPY RESULT', 'btn-gold', share], ['CLOSE', 'btn-ghost', null]]);
 }
 function touchdown() {
   modal('TOUCHDOWN!', el('div', {},
@@ -195,15 +194,7 @@ function touchdown() {
 }
 function giveUp() {
   if (S.done) return;
-  modal('GIVE UP?', el('p', { text: 'This ends today\'s grid and shows every answer.' }), [['GIVE UP', 'btn-acc', () => { S.done = 'lose'; save(); render(); }], ['KEEP PLAYING', 'btn-ghost', null]]);
-}
-function showAnswers(i) {
-  const [a, b] = cellTeams(i), all = answers(a, b);
-  const box = el('div', { style: 'display:flex;flex-direction:column;gap:6px' });
-  all.sort((x, y) => rarityPts(i, y) - rarityPts(i, x));
-  for (const p of all.slice(0, 40)) box.append(el('div', { style: 'display:flex;justify-content:space-between;gap:12px' }, el('span', { text: p.name }), el('span', { style: 'color:var(--muted);font-size:13px;white-space:nowrap', text: p.pos + ' · ' + yrs(p) + ' · ' + rarityPts(i, p) + ' pts' })));
-  if (all.length > 40) box.append(el('p', { style: 'margin:6px 0 0;color:var(--muted)', text: `…and ${all.length - 40} more.` }));
-  modal(`${a} + ${b} · ${all.length} ANSWERS`, box, [['CLOSE', 'btn-gold', null]]);
+  modal('GIVE UP?', el('p', { text: 'This ends today\'s grid. Answers stay hidden so nobody can look them up for today.' }), [['GIVE UP', 'btn-acc', () => { S.done = 'lose'; save(); render(); }], ['KEEP PLAYING', 'btn-ghost', null]]);
 }
 async function share() {
   const rows = [0, 1, 2].map((r) => [0, 1, 2].map((c) => S.cells[r * 3 + c] != null ? '🟩' : '⬜').join('')).join('\n');
@@ -232,5 +223,5 @@ $('modal').addEventListener('click', (e) => { if (e.target.id === 'modal') close
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 render();
 if (!store.get('gridSeenHelp', false)) { store.set('gridSeenHelp', true); $('helpBtn').click(); }
-window.__grid = { GRID, S: () => S, answers, P, DATE };
+window.__grid = { GRID, S: () => S, DATE };
 })();
