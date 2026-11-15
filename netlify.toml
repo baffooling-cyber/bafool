@@ -1,7 +1,7 @@
 [build]
   publish = "public"
-  # data.js (1 MB of rosters) is carried over from the live site at build time and checked against its fingerprint
-  command = "test -s public/data.js || curl -fsSL https://runthetablenfl.com/data.js -o public/data.js; echo '2737bc51af8fdc2ad69ffc9775dad5b533779f5d2914bce875bb353110a24885  public/data.js' | sha256sum -c -"
+  # data.js (1 MB of rosters) lives in public/; the build checks it against this fingerprint
+  command = "test -s public/data.js || curl -fsSL https://runthetablenfl.com/data.js -o public/data.js; echo '58b6ee265cdfe7788f62a3166e573b6b53a9b2b86909032802a6b690acd5714d  public/data.js' | sha256sum -c -"
 
 [functions]
   directory = "netlify/functions"
