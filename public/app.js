@@ -56,6 +56,27 @@ function histName(fr, y) {
 const fullName = (fr) => FR[fr][0] + ' ' + FR[fr][1];
 const YEARS = {};
 for (const fr of FR_KEYS) YEARS[fr] = Object.keys(G.teams[fr] || {}).map(Number).sort((a, b) => a - b);
+// ---------- eras: limit free play / fantasy drafts to chosen decades ----------
+const ERAS = [1970, 1980, 1990, 2000, 2010, 2020];
+const eraShort = (d) => "'" + String(d).slice(2) + 's';
+function eraLabel(eras) {
+  if (!eras || !eras.length) return 'All eras';
+  return eras.slice().sort((a, b) => a - b).map(eraShort).join(', ');
+}
+function eraRange(eras) {
+  if (!eras || !eras.length) return '1970–2025';
+  const a = Math.min(...eras), b = Math.min(Math.max(...eras) + 9, 2025);
+  return a + '–' + b;
+}
+// Seasons of a franchise the current run can draw from
+function yrs(fr) {
+  const all = YEARS[fr] || [];
+  const e = S && S.eras;
+  if (!e || !e.length) return all;
+  return all.filter((y) => e.includes(Math.floor(y / 10) * 10));
+}
+const frsAvail = () => FR_KEYS.filter((f) => yrs(f).length);
+let eraPick = (function () { try { const v = JSON.parse(localStorage.getItem('rtt:eras') || 'null'); return Array.isArray(v) ? v.filter((d) => ERAS.includes(d)) : []; } catch (e) { return []; } })();
 
 const dstCache = {};
 // A team-season's defense as one draftable unit: rated on its top 4 DL, 3 LB and 4 DB
@@ -167,7 +188,8 @@ function newRun(mode, fr) {
   const date = todayStr();
   const seed = mode === 'daily' ? 'daily|' + date : 'free|' + Date.now() + '|' + Math.random();
   if (mode === 'daily') fr = pick(rng(seed + '|franchise'), FR_KEYS);
-  S = { mode, date, seed, fr, picks: [], spin: freshSpin(), showRatings: $('showRatingsHome').checked, done: false };
+  const eras = mode === 'daily' || !eraPick.length || eraPick.length === ERAS.length ? null : eraPick.slice().sort((a, b) => a - b);
+  S = { mode, date, seed, fr, eras, picks: [], spin: freshSpin(), showRatings: $('showRatingsHome').checked, done: false };
   save(); openDraft();
 }
 function save() { if (S && !S.done) store.set('run', S); }
@@ -175,8 +197,8 @@ function filledCount(pos) { return S.picks.filter((p) => p.pos === pos).length; 
 function spinResult(tag) {
   const i = S.picks.length;
   const r = rng(S.seed + '|spin|' + i + '|' + tag);
-  const fr = pick(r, FR_KEYS);
-  return { fr, y: pick(r, YEARS[fr]) };
+  const fr = pick(r, frsAvail());
+  return { fr, y: pick(r, yrs(fr)) };
 }
 function eligible(pl) { return posOpen(pl.pos) && !S.picks.some((p) => p.pid === pl.pid); }
 
@@ -192,7 +214,7 @@ function renderHome() {
   $('prCount').textContent = n + '/32'; $('prBar').style.width = (n / 32 * 100) + '%';
   const saved = store.get('run', null);
   $('resumeRow').classList.toggle('hidden', !saved);
-  if (saved) $('resumeInfo').textContent = saved.mode === 'fantasy' ? 'Fantasy draft · ' + saved.picks.length + '/' + FSLOTS.length + ' picks' : (saved.mode === 'daily' ? 'Daily · ' : '') + fullName(saved.fr) + ' · ' + saved.picks.length + '/52 picks';
+  if (saved) $('resumeInfo').textContent = (saved.mode === 'fantasy' ? 'Fantasy draft · ' + saved.picks.length + '/' + FSLOTS.length + ' picks' : (saved.mode === 'daily' ? 'Daily · ' : '') + fullName(saved.fr) + ' · ' + saved.picks.length + '/52 picks') + (saved.eras ? ' · ' + eraLabel(saved.eras) : '');
   const daily = store.get('daily', {});
   $('dailyBtn').textContent = daily[todayStr()] ? "✓ Today's daily done" : "Play today's daily";
   const last = store.get('last', null);
@@ -203,7 +225,22 @@ function renderHome() {
     $('lastCap').textContent = last.result;
   }
   $('lastStatsBtn').classList.toggle('hidden', !(last && last.stats));
-renderRecords(); renderFRecords(); loadLeaderboard();
+renderEras(); renderRecords(); renderFRecords(); loadLeaderboard();
+}
+function renderEras() {
+  const box = $('eraTabs'); if (!box) return;
+  box.replaceChildren();
+  const all = !eraPick.length;
+  const set = (v) => { eraPick = v.length === ERAS.length ? [] : v.sort((a, b) => a - b); store.set('eras', eraPick); beep(600, .05); renderEras(); };
+  box.append(el('button', { class: 'ptab', 'aria-pressed': all ? 'true' : 'false', onclick: () => set([]) }, 'All eras'));
+  for (const d of ERAS) {
+    const on = eraPick.includes(d);
+    box.append(el('button', { class: 'ptab', 'aria-pressed': on ? 'true' : 'false', 'aria-label': d + 's' + (d === 2020 ? ' (2020 to 2025)' : ''),
+      onclick: () => set(on ? eraPick.filter((x) => x !== d) : eraPick.concat(d)) }, eraShort(d)));
+  }
+  $('eraCap').textContent = all
+    ? 'Spins can land on any season from 1970 to 2025. Pick one or more decades to narrow it down.'
+    : 'Spins only land on seasons from the ' + eraLabel(eraPick) + (eraPick.length === 1 ? ' (' + eraRange(eraPick) + ')' : '') + '. The daily board always uses every era.';
 }
 function renderRecords() {
   const h = store.get('history', []), perfect = store.get('perfect', {}), rings = store.get('rings', {});
@@ -281,7 +318,7 @@ function rollYear(years, final, ms) {
 let posFilter = 'OPEN', busy = false;
 function openDraft() {
   show('draft');
-  $('dMode').textContent = S.mode === 'fantasy' ? 'Fantasy draft · PPR · 9 spins' : S.mode === 'daily' ? 'Daily board · ' + S.date : 'Free play';
+  $('dMode').textContent = (S.mode === 'fantasy' ? 'Fantasy draft · PPR · 9 spins' : S.mode === 'daily' ? 'Daily board · ' + S.date : 'Free play') + (S.eras ? ' · ' + eraLabel(S.eras) + ' only' : '');
   $('dTitle').textContent = isF() ? 'Your fantasy lineup' : fullName(S.fr);
   const dh = $('filled').previousElementSibling; if (dh) dh.textContent = isF() ? 'Lineup' : 'Depth chart';
   $('showRatings').checked = !!S.showRatings;
@@ -304,7 +341,7 @@ function renderDraft() {
   else if (sp.phase === 'ready') { sb.textContent = 'Spin'; sb.disabled = false; }
   else { sb.textContent = 'Spin'; sb.disabled = true; }
   if (busy) sb.disabled = true;
-  const canYear = !busy && !sp.yearUsed && (sp.phase === 'picking' || sp.phase === 'picked') && YEARS[sp.fr] && YEARS[sp.fr].length > 1;
+  const canYear = !busy && !sp.yearUsed && (sp.phase === 'picking' || sp.phase === 'picked') && yrs(sp.fr).length > 1;
   $('resetYearBtn').disabled = !canYear; $('ryCt').textContent = sp.yearUsed ? '0' : '1';
   $('resetTeamBtn').disabled = busy || sp.teamUsed || !(sp.phase === 'picking' || sp.phase === 'picked'); $('rtCt').textContent = sp.teamUsed ? '0' : '1';
   const msg = $('dMsg');
@@ -393,7 +430,7 @@ async function doSpin(tag) {
   const quick = $('quickSpin').checked;
   const ms = spinWheelTo(res.fr, quick);
   $('rTeam').textContent = '…';
-  await Promise.all([new Promise((r) => setTimeout(r, ms)), rollYear(YEARS[res.fr], res.y, ms + (quick ? 100 : 300))]);
+  await Promise.all([new Promise((r) => setTimeout(r, ms)), rollYear(yrs(res.fr), res.y, ms + (quick ? 100 : 300))]);
   $('rTeam').textContent = res.fr;
   sp.fr = res.fr; sp.y = res.y; sp.phase = 'picking'; busy = false;
   posFilter = 'OPEN'; $('search').value = ''; renderDraft();
@@ -431,7 +468,7 @@ function choose(pl) {
 async function resetYear() {
   const sp = S.spin;
   if (busy || sp.yearUsed || !(sp.phase === 'picking' || sp.phase === 'picked')) return;
-  const years = YEARS[sp.fr].filter((y) => y !== sp.y);
+  const years = yrs(sp.fr).filter((y) => y !== sp.y);
   const r = rng(S.seed + '|spin|' + S.picks.length + '|year|' + sp.free);
   const ny = pick(r, years);
   sp.yearUsed = true; sp.pending = null; busy = true; sp.phase = 'spinning'; renderDraft();
@@ -443,15 +480,15 @@ async function resetTeam() {
   const sp = S.spin;
   if (busy || sp.teamUsed || !(sp.phase === 'picking' || sp.phase === 'picked')) return;
   const r = rng(S.seed + '|spin|' + S.picks.length + '|team|' + (sp.free || 0));
-  const others = FR_KEYS.filter((f) => f !== sp.fr && YEARS[f] && YEARS[f].length);
-  const sameYear = others.filter((f) => YEARS[f].includes(sp.y));
+  const others = FR_KEYS.filter((f) => f !== sp.fr && yrs(f).length);
+  const sameYear = others.filter((f) => yrs(f).includes(sp.y));
   // Only fall back to a different season if no other franchise has this one
-  const nf = pick(r, sameYear.length ? sameYear : others), ny = sameYear.length ? sp.y : pick(r, YEARS[nf]);
+  const nf = pick(r, sameYear.length ? sameYear : others), ny = sameYear.length ? sp.y : pick(r, yrs(nf));
   sp.teamUsed = true; sp.pending = null; busy = true; sp.phase = 'spinning'; renderDraft();
   beep(520, .08);
   const quick = $('quickSpin').checked, ms = spinWheelTo(nf, quick);
   $('rTeam').textContent = '…';
-  await Promise.all([new Promise((res) => setTimeout(res, ms)), ny !== sp.y ? rollYear(YEARS[nf], ny, ms + (quick ? 100 : 300)) : null]);
+  await Promise.all([new Promise((res) => setTimeout(res, ms)), ny !== sp.y ? rollYear(yrs(nf), ny, ms + (quick ? 100 : 300)) : null]);
   $('rTeam').textContent = nf;
   sp.fr = nf; sp.y = ny; sp.phase = 'picking'; busy = false; posFilter = 'OPEN'; $('search').value = ''; renderDraft();
 }
@@ -469,12 +506,13 @@ function finishDraft() {
 // available player at every open slot.
 const DREAM_ODDS = 1200;
 const AUTO_FR = FR_KEYS.filter((f) => YEARS[f] && YEARS[f].length);
-let poolCache = null;
+let poolCache = null, poolKey = null;
 function poolByPos() {
-if (poolCache) return poolCache;
-poolCache = {}; POS.forEach((p) => poolCache[p] = []);
+const key = eraLabel(S && S.eras);
+if (poolCache && poolKey === key) return poolCache;
+poolCache = {}; poolKey = key; POS.forEach((p) => poolCache[p] = []);
 const seen = new Set();
-for (const fr of AUTO_FR) for (const y of YEARS[fr]) for (const pl of roster(fr, y)) {
+for (const fr of frsAvail()) for (const y of yrs(fr)) for (const pl of roster(fr, y)) {
 if (seen.has(pl.pid)) continue; seen.add(pl.pid);
 poolCache[pl.pos].push({ pid: pl.pid, name: pl.name, pos: pl.pos, ovr: pl.ovr, fr, y });
 }
@@ -498,7 +536,7 @@ for (const pos of slots) {
 let got = null;
 if (dream) got = dreamPick(pos, taken);
 for (let t = 0; !got && t < 80; t++) {
-const fr = pick(r, AUTO_FR), y = pick(r, YEARS[fr]);
+const fr = pick(r, frsAvail()), y = pick(r, yrs(fr));
 const opts = draftRoster(fr, y).filter((x) => slotTakes(pos, x.pos) && !taken.has(x.pid));
 if (opts.length) { const x = pick(r, opts); got = { pid: x.pid, name: x.name, pos: x.pos, ovr: x.ovr, fr, y }; }
 }
@@ -520,7 +558,7 @@ modal('Dream team', el('p', { text: 'The 1-in-1,200 roll hit. Every open spot ju
 function dreamPick(pos, taken) {
 if (pos === 'DST') {
 let best = null;
-for (const fr of AUTO_FR) for (const y of YEARS[fr]) { const d = dstOf(fr, y); if (!taken.has(d.pid) && (!best || d.ovr > best.ovr)) best = Object.assign({ fr, y }, d); }
+for (const fr of frsAvail()) for (const y of yrs(fr)) { const d = dstOf(fr, y); if (!taken.has(d.pid) && (!best || d.ovr > best.ovr)) best = Object.assign({ fr, y }, d); }
 return best;
 }
 const cands = (pos === 'FLEX' ? FLEXOK : [pos]).map((p) => poolByPos()[p].find((x) => !taken.has(x.pid))).filter(Boolean);
@@ -532,7 +570,7 @@ if (busy || !S || S.done) return;
 const open = openSpots(); if (open <= 0) return;
 const fresh = !S.picks.length && !S.spin.pending;
 modal(fresh ? 'Random team?' : 'Auto-fill open spots?',
-el('p', { text: fresh ? 'Fill all 52 spots with random players from random teams and seasons. No ratings involved.' : `Fill your ${open} open spot${open === 1 ? '' : 's'} with random players from random teams and seasons. Everyone you already drafted stays.` }),
+el('p', { text: fresh ? 'Fill all ' + total() + ' spots with random players from random teams and seasons' + (S.eras ? ' (' + eraLabel(S.eras) + ')' : '') + '. No ratings involved.' : `Fill your ${open} open spot${open === 1 ? '' : 's'} with random players from random teams and seasons. Everyone you already drafted stays.` }),
 [[fresh ? 'Generate' : 'Fill it', 'btn-acc', () => afterFill(randomFill())], ['Cancel', 'btn-ghost', null]]);
 }
 function autoDraftNew() {
@@ -548,7 +586,7 @@ async function runSeason() {
   const T = teamRating(S.picks);
   const r = rng(S.seed + '|season|' + S.picks.map((p) => p.pid).join('.'));
   const sched = G.schedule[S.fr];
-  $('sMode').textContent = (S.mode === 'daily' ? 'Daily · ' + S.date + ' · ' : '') + '2026 season';
+  $('sMode').textContent = (S.mode === 'daily' ? 'Daily · ' + S.date + ' · ' : '') + '2026 season' + (S.eras ? ' · ' + eraLabel(S.eras) + ' only' : '');
   $('sTitle').textContent = fullName(S.fr);
   $('sOvr').textContent = T.toFixed(1);
   const games = $('games'); games.replaceChildren(); $('pgames').replaceChildren();
@@ -600,7 +638,7 @@ const ST = statsInit(S.picks), sr = rng(S.seed + '|stats|' + S.picks.length + '|
   $('banner').classList.remove('hidden'); syncPostBtn();
   $('skipBtn').classList.add('hidden');
   // records
-  const rec = { fr: S.fr, w, l, ovr: T, result, seq: seq.join(''), date: S.date, mode: S.mode, ring };
+  const rec = { fr: S.fr, w, l, ovr: T, result, seq: seq.join(''), date: S.date, mode: S.mode, ring, eras: S.eras || null };
   S.stats = statsPack(ST); store.set('last', Object.assign({ stats: S.stats, ts: Date.now() }, rec));
   const h = store.get('history', []); h.push(rec); store.set('history', h.slice(-200));
   if (w === 17) { const p = store.get('perfect', {}); p[S.fr] = S.date; store.set('perfect', p); }
@@ -622,7 +660,7 @@ function reveal(card, win) {
 function shareText() {
   if (S && S.mode === 'fantasy') return fShareText();
   const r = S.result; if (!r) return '';
-  return `RUN THE TABLE · 52-man roster\n${r.mode === 'daily' ? 'Daily ' + r.date : 'Free play'} · ${fullName(r.fr)}\n${r.result}\n${r.seq}\nTeam OVR ${r.ovr.toFixed(1)}`;
+  return `RUN THE TABLE · 52-man roster${r.eras ? ' · ' + eraLabel(r.eras) : ''}\n${r.mode === 'daily' ? 'Daily ' + r.date : 'Free play'} · ${fullName(r.fr)}\n${r.result}\n${r.seq}\nTeam OVR ${r.ovr.toFixed(1)}`;
 }
 function viewRoster() {
   if (isF()) return viewLineup();
@@ -876,7 +914,7 @@ async function runFantasy() {
   const lineup = fAssign(S.picks).map((x) => x.p);
   const ovr = lineup.reduce((t, p) => t + p.ovr, 0) / lineup.length;
   const r = rng(S.seed + '|fantasy|' + S.picks.map((p) => p.pid).join('.'));
-  $('sMode').textContent = '2026 fantasy season · PPR';
+  $('sMode').textContent = '2026 fantasy season · PPR' + (S.eras ? ' · ' + eraLabel(S.eras) + ' only' : '');
   $('sTitle').textContent = 'Fantasy league';
   $('sOvr').textContent = ovr.toFixed(1); $('sRec').textContent = '0-0';
   $('games').replaceChildren(); $('pgames').replaceChildren();
@@ -932,13 +970,13 @@ async function runFantasy() {
   $('bNote').textContent = `MVP: ${tops[0].n} (${tops[0].slot}) with ${r1(tops[1]).toFixed(1)} points. ${(pf / 17).toFixed(1)} points per week.`;
   $('banner').classList.remove('hidden'); syncPostBtn();
   $('skipBtn').classList.add('hidden');
-  const rec = { mode: 'fantasy', w, l, ovr, result, seq: seq.join(''), date: S.date, ring, pf };
+  const rec = { mode: 'fantasy', w, l, ovr, result, seq: seq.join(''), date: S.date, ring, pf, eras: S.eras || null };
   S.fstats = FS; S.result = rec;
   const h = store.get('fhistory', []); h.push(rec); store.set('fhistory', h.slice(-200));
 }
 function fShareText() {
   const r = S.result; if (!r) return '';
-  return `RUN THE TABLE · Fantasy draft (PPR)\n${r.result}\n${r.seq}\n${r.pf.toFixed(1)} points · Lineup OVR ${r.ovr.toFixed(1)}`;
+  return `RUN THE TABLE · Fantasy draft (PPR)${r.eras ? ' · ' + eraLabel(r.eras) : ''}\n${r.result}\n${r.seq}\n${r.pf.toFixed(1)} points · Lineup OVR ${r.ovr.toFixed(1)}`;
 }
 function viewLineup() {
   const box = el('div', { style: 'display:flex;flex-direction:column;gap:8px' });
@@ -989,8 +1027,9 @@ function syncPostBtn() {
 function postRun() {
   if (!S || !S.result || !window.RTTLB) return;
   const r = S.result, f = S.mode === 'fantasy';
-  const entry = f ? { w: r.w, l: r.l, ring: r.ring ? 1 : 0, pf: r.pf, ovr: r.ovr, result: r.result }
-    : { w: r.w, l: r.l, ring: r.ring ? 1 : 0, ovr: r.ovr, fr: r.fr, mode: r.mode, result: r.result };
+  const res = r.eras ? (r.result + ' · ' + eraLabel(r.eras)).slice(0, 80) : r.result;
+  const entry = f ? { w: r.w, l: r.l, ring: r.ring ? 1 : 0, pf: r.pf, ovr: r.ovr, result: res }
+    : { w: r.w, l: r.l, ring: r.ring ? 1 : 0, ovr: r.ovr, fr: r.fr, mode: r.mode, result: res };
   RTTLB.postDialog(f ? 'fantasy' : 'table', entry, runKey(), () => { syncPostBtn(); if (lbWidget) lbWidget.show(f ? 'fantasy' : 'table'); });
 }
 

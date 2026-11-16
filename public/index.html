@@ -121,6 +121,8 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;align-ite
 .ptabs{display:flex;flex-wrap:wrap;gap:6px}
 .ptab{font-size:13px;font-weight:600;background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:999px;padding:9px 14px;min-height:40px}
 .ptab[aria-pressed=true]{background:var(--acc);color:#0B0D10;border-color:var(--acc)}
+.erapick{display:flex;flex-direction:column;gap:10px}
+.erapick .ptab{min-width:52px}
 .ptab .c{color:var(--muted);margin-left:6px;font-weight:500}
 .ptab[aria-pressed=true] .c{color:#2B3A08}
 .search{width:100%;background:var(--bg);border:1px solid var(--line2);border-radius:12px;color:var(--txt);font-size:16px;padding:12px 14px;font-family:inherit}
@@ -197,6 +199,11 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;align-ite
         <div class="row">
           <button class="btn btn-acc" id="dailyBtn">Play today's daily</button>
           <button class="btn btn-gold" data-go="play">Pick any team</button>
+        </div>
+        <div class="erapick" role="group" aria-labelledby="eraLbl">
+          <span class="eyebrow" id="eraLbl">Eras · free play &amp; fantasy</span>
+          <div class="ptabs" id="eraTabs"></div>
+          <p class="cap" id="eraCap" aria-live="polite"></p>
         </div>
         <div class="row hidden" id="resumeRow">
           <button class="btn btn-ghost btn-sm" id="resumeBtn">Continue draft</button>
