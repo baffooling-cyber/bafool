@@ -129,40 +129,44 @@ window.RTTAccount = (function () {
     return n;
   }
   const css = `
-.acct-btn{display:inline-flex;align-items:center;gap:8px;font-family:'Press Start 2P',monospace;font-size:10px;line-height:1.4;background:var(--gold);color:var(--ink);border:0;padding:12px 14px;min-height:44px;box-shadow:4px 4px 0 #b8891a;cursor:pointer;max-width:220px}
-.acct-btn.in{background:transparent;color:#fff;border:2px solid var(--gold);box-shadow:none}
+.acct-btn{display:inline-flex;align-items:center;gap:8px;font-family:inherit;font-weight:600;font-size:14px;line-height:1.2;background:var(--acc);color:#0B0D10;border:0;border-radius:10px;padding:12px 16px;min-height:44px;cursor:pointer;max-width:220px}
+.acct-btn:hover{background:var(--acc2)}
+.acct-btn.in{background:var(--panel);color:var(--txt);border:1px solid var(--line2);padding:8px 14px 8px 8px}
+.acct-btn.in:hover{border-color:var(--acc)}
 .acct-btn .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.acct-av{width:22px;height:22px;flex:0 0 22px;display:inline-flex;align-items:center;justify-content:center;background:var(--acc);color:var(--ink);font-size:10px}
-.acct-ov{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:70;padding:16px}
-.acct-pn{background:var(--panel);border:4px solid var(--line);box-shadow:10px 10px 0 rgba(0,0,0,.45);max-width:520px;width:100%;max-height:calc(100vh - 32px);overflow:auto;padding:24px;display:flex;flex-direction:column;gap:18px;color:var(--soft);font-size:15px;line-height:1.6}
-.acct-pn h2{margin:0;font-family:'Press Start 2P',monospace;font-weight:400;font-size:14px;line-height:1.5;color:var(--gold)}
-.acct-pn h3{margin:0;font-family:'Press Start 2P',monospace;font-weight:400;font-size:10px;color:var(--muted)}
+.acct-av{width:28px;height:28px;flex:0 0 28px;display:inline-flex;align-items:center;justify-content:center;background:var(--acc);color:#0B0D10;border-radius:8px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px}
+.acct-ov{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:70;padding:16px}
+.acct-pn{background:var(--panel);border:1px solid var(--line);border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,.5);max-width:520px;width:100%;max-height:calc(100vh - 32px);overflow:auto;padding:28px;display:flex;flex-direction:column;gap:18px;color:var(--soft);font-size:15px;line-height:1.6}
+.acct-pn h2{margin:0;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;letter-spacing:-.3px;line-height:1.2;color:var(--txt)}
+.acct-pn h3{margin:0;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
 .acct-pn p{margin:0}
-.acct-prov{display:flex;align-items:center;gap:12px;width:100%;background:#fff;color:#111;border:0;padding:14px 16px;font-family:Inter,system-ui,sans-serif;font-size:16px;font-weight:600;min-height:52px;cursor:pointer;box-shadow:4px 4px 0 #000}
-.acct-prov.apple{background:#000;color:#fff;border:2px solid #fff}
+.acct-prov{display:flex;align-items:center;gap:12px;width:100%;background:#fff;color:#111;border:0;border-radius:12px;padding:14px 16px;font-family:Inter,system-ui,sans-serif;font-size:16px;font-weight:600;min-height:52px;cursor:pointer}
+.acct-prov.apple{background:#000;color:#fff;border:1px solid #3A434F}
 .acct-prov:disabled{opacity:.5;cursor:not-allowed}
-.acct-row{display:flex;align-items:center;gap:12px;background:var(--panel2);border:2px solid var(--line);padding:10px 12px;min-height:52px}
+.acct-row{display:flex;align-items:center;gap:12px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-height:56px}
 .acct-row .who{flex:1;min-width:0;display:flex;flex-direction:column}
-.acct-row .who b{color:#fff;font-weight:600}
+.acct-row .who b{color:var(--txt);font-weight:600}
 .acct-row .who span{font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.acct-mini{font-family:'Press Start 2P',monospace;font-size:9px;background:transparent;color:#fff;border:2px solid var(--line2);padding:10px;min-height:40px;cursor:pointer}
-.acct-mini.go{border-color:var(--gold);color:var(--gold)}
+.acct-mini{font-family:inherit;font-weight:600;font-size:13px;background:transparent;color:var(--txt);border:1px solid var(--line2);border-radius:10px;padding:10px 12px;min-height:40px;cursor:pointer}
+.acct-mini:hover:not(:disabled){border-color:var(--acc)}
+.acct-mini.go{background:var(--acc);border-color:var(--acc);color:#0B0D10}
 .acct-mini:disabled{opacity:.45;cursor:not-allowed}
 .acct-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
-.acct-stat{background:var(--panel2);border:2px solid var(--line);padding:10px 12px;display:flex;flex-direction:column;gap:6px}
-.acct-stat .v{font-family:'Press Start 2P',monospace;font-size:15px;color:#fff;line-height:1.3}
+.acct-stat{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:4px}
+.acct-stat .v{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;color:var(--txt);line-height:1.2}
 .acct-stat .l{font-size:12px;color:var(--muted)}
-.acct-in{flex:1;min-width:0;background:var(--panel2);border:2px solid var(--line2);color:#fff;font:inherit;font-size:16px;padding:10px 12px}
+.acct-in{flex:1;min-width:0;background:var(--bg);border:1px solid var(--line2);border-radius:10px;color:var(--txt);font:inherit;font-size:16px;padding:10px 12px}
+.acct-in:focus{border-color:var(--acc);outline:none}
 .acct-err{color:var(--red)}
 .acct-foot{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
-.acct-link{background:none;border:0;color:var(--muted);text-decoration:underline;font:inherit;font-size:13px;padding:8px 0;cursor:pointer}
-.acct-or{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted)}.acct-or::before,.acct-or::after{content:'';flex:1;border-top:2px dashed var(--line2)}
+.acct-link{background:none;border:0;color:var(--muted);text-decoration:underline;font:inherit;font-size:13px;padding:8px 0;cursor:pointer;align-self:flex-start}
+.acct-or{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted)}.acct-or::before,.acct-or::after{content:'';flex:1;border-top:1px solid var(--line2)}
 .acct-form{display:flex;flex-direction:column;gap:10px}
 .acct-form label{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--muted)}
-.acct-tabs{display:flex;gap:6px}
-.acct-tab{flex:1;font-family:'Press Start 2P',monospace;font-size:9px;background:var(--panel2);color:#fff;border:2px solid var(--line);padding:10px;min-height:40px;cursor:pointer}
-.acct-tab[aria-pressed=true]{background:var(--acc);color:var(--ink);border-color:var(--acc)}
-.acct-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--gold);color:var(--ink);font-family:'Press Start 2P',monospace;font-size:11px;line-height:1.5;padding:14px 18px;box-shadow:4px 4px 0 #000;z-index:80;max-width:calc(100vw - 32px);text-align:center}
+.acct-tabs{display:flex;gap:4px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:4px}
+.acct-tab{flex:1;font-family:inherit;font-weight:600;font-size:14px;background:transparent;color:var(--muted);border:0;border-radius:9px;padding:10px;min-height:40px;cursor:pointer}
+.acct-tab[aria-pressed=true]{background:var(--acc);color:#0B0D10}
+.acct-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--acc);color:#0B0D10;font-weight:600;font-size:14px;line-height:1.4;padding:12px 18px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.5);z-index:80;max-width:calc(100vw - 32px);text-align:center}
 @media (max-width:640px){.acct-btn{max-width:160px}}`;
   document.head.append(el('style', { text: css }));
 
@@ -198,7 +202,7 @@ window.RTTAccount = (function () {
       btn.append(el('span', { class: 'acct-av', 'aria-hidden': 'true', text: initial(user.name) }), el('span', { class: 'nm', text: user.name }));
       btn.setAttribute('aria-label', 'Your account: ' + user.name);
     } else {
-      btn.append(el('span', { text: 'SIGN IN' }));
+      btn.append(el('span', { text: 'Sign in' }));
       btn.setAttribute('aria-label', 'Sign in to save your stats');
     }
   }
@@ -216,7 +220,7 @@ window.RTTAccount = (function () {
     const pwIn = el('input', { class: 'acct-in', type: 'password', autocomplete: mode === 'login' ? 'current-password' : 'new-password', required: 'required', minlength: mode === 'login' ? false : '8', maxlength: '200' });
     const nameIn = el('input', { class: 'acct-in', type: 'text', autocomplete: 'nickname', maxlength: '20' });
     const msg = el('p', { class: 'acct-err', 'aria-live': 'polite' });
-    const go = el('button', { class: 'btn btn-acc btn-sm', type: 'submit' }, mode === 'login' ? 'SIGN IN' : mode === 'link' ? 'ADD EMAIL' : 'CREATE ACCOUNT');
+    const go = el('button', { class: 'btn btn-acc btn-sm', type: 'submit' }, mode === 'login' ? 'Sign in' : mode === 'link' ? 'Add email' : 'Create account');
     const f = el('form', { class: 'acct-form', novalidate: 'novalidate' },
       el('label', {}, 'Email', emailIn),
       mode === 'signup' ? el('label', {}, 'Display name (optional)', nameIn) : null,
@@ -246,36 +250,36 @@ window.RTTAccount = (function () {
     const tabs = el('div', { class: 'acct-tabs', role: 'group', 'aria-label': 'Email sign-in' });
     function draw() {
       tabs.replaceChildren(
-        el('button', { class: 'acct-tab', type: 'button', 'aria-pressed': String(mode === 'login'), onclick: () => { mode = 'login'; draw(); } }, 'SIGN IN'),
-        el('button', { class: 'acct-tab', type: 'button', 'aria-pressed': String(mode === 'signup'), onclick: () => { mode = 'signup'; draw(); } }, 'NEW ACCOUNT'));
+        el('button', { class: 'acct-tab', type: 'button', 'aria-pressed': String(mode === 'login'), onclick: () => { mode = 'login'; draw(); } }, 'Sign in'),
+        el('button', { class: 'acct-tab', type: 'button', 'aria-pressed': String(mode === 'signup'), onclick: () => { mode = 'signup'; draw(); } }, 'New account'));
       box.replaceChildren(emailForm(mode, afterEmailSignIn));
       const f = box.querySelector('input'); if (f) f.focus();
     }
-    open('SIGN IN',
+    open('Sign in',
       el('p', { text: 'Make a free account to save your seasons, perfect runs, rings and daily results, and pick up on any device.' }),
       oauth.length ? el('div', { style: 'display:flex;flex-direction:column;gap:12px' }, ...oauth.map((p) => providerButton(p, false))) : null,
       oauth.length ? el('div', { class: 'acct-or', text: 'or use email' }) : null,
       tabs, box,
       el('p', { style: 'font-size:13px;color:var(--muted)', text: 'Stats you already have on this device are added to your account when you sign in. You can link more sign-in methods later. ' }, el('a', { href: '/privacy.html', text: 'Privacy policy' })),
-      el('div', { class: 'acct-foot' }, el('button', { class: 'btn btn-ghost btn-sm', style: 'border-width:2px', type: 'button', onclick: close }, 'NOT NOW')));
+      el('div', { class: 'acct-foot' }, el('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: close }, 'Not now')));
     draw();
   }
   function showAddEmail() {
-    open('ADD EMAIL SIGN-IN',
+    open('Add email sign-in',
       el('p', { text: 'Add an email and password so you can sign in to this same account without ' + user.providers.filter((p) => p !== 'email').map((p) => LABEL[p]).join(' or ') + '.' }),
       emailForm('link', (u) => { user = u; renderButton(); toast('Email added to your account'); showAccount(); }),
-      el('div', { class: 'acct-foot' }, el('button', { class: 'btn btn-ghost btn-sm', style: 'border-width:2px', type: 'button', onclick: showAccount }, 'BACK')));
+      el('div', { class: 'acct-foot' }, el('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: showAccount }, 'Back')));
   }
   function showPassword() {
     const pwIn = el('input', { class: 'acct-in', type: 'password', autocomplete: 'new-password', minlength: '8', maxlength: '200' });
     const msg = el('p', { class: 'acct-err', 'aria-live': 'polite' });
     const f = el('form', { class: 'acct-form' }, el('label', {}, 'New password (8+ characters)', pwIn), msg,
-      el('div', {}, el('button', { class: 'btn btn-acc btn-sm', type: 'submit' }, 'SAVE PASSWORD')));
+      el('div', {}, el('button', { class: 'btn btn-acc btn-sm', type: 'submit' }, 'Save password')));
     f.addEventListener('submit', async (e) => {
       e.preventDefault();
       try { await post('/me/password', { password: pwIn.value }); toast('Password changed'); showAccount(); } catch (err) { msg.textContent = err.message; }
     });
-    open('CHANGE PASSWORD', f, el('div', { class: 'acct-foot' }, el('button', { class: 'btn btn-ghost btn-sm', style: 'border-width:2px', type: 'button', onclick: showAccount }, 'BACK')));
+    open('Change password', f, el('div', { class: 'acct-foot' }, el('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: showAccount }, 'Back')));
   }
 
   function summary() {
@@ -286,14 +290,14 @@ window.RTTAccount = (function () {
     const gw = grids.filter((g) => g.done === 'win').length;
     const stat = (v, l) => el('div', { class: 'acct-stat' }, el('span', { class: 'v', text: String(v) }), el('span', { class: 'l', text: l }));
     return [
-      el('h3', { text: 'RUN THE TABLE' }),
+      el('h3', { text: 'Run the Table' }),
       el('div', { class: 'acct-stats' },
         stat(h.length, 'Seasons played'), stat(bt ? bt.w + '-' + bt.l : '—', 'Best record'),
         stat(Object.keys(perfect).length + '/32', 'Perfect Run'), stat(Object.keys(rings).length, 'Franchises with a ring'),
         stat(h.filter((x) => x.w === 17).length, '17-0 seasons'), stat(Object.keys(daily).length, 'Daily boards played')),
-      el('h3', { text: 'FANTASY DRAFT' }),
+      el('h3', { text: 'Fantasy draft' }),
       el('div', { class: 'acct-stats' }, stat(fh.length, 'Seasons played'), stat(bf ? bf.w + '-' + bf.l : '—', 'Best record'), stat(fh.filter((x) => x.ring).length, 'Titles')),
-      el('h3', { text: 'RUN THE GRID' }),
+      el('h3', { text: 'Run the Grid' }),
       el('div', { class: 'acct-stats' }, stat(grids.length, 'Grids played'), stat(gw, 'Touchdowns'), stat(grids.length ? Math.round(gw / grids.length * 100) + '%' : '—', 'Win rate'))
     ];
   }
@@ -317,28 +321,28 @@ window.RTTAccount = (function () {
       if (p === 'email') {
         const who = el('div', { class: 'who' }, el('b', { text: 'Email' }), el('span', { text: id ? 'Linked · ' + id.email : 'Not linked' }));
         const acts = id
-          ? [el('button', { class: 'acct-mini', type: 'button', onclick: showPassword }, 'PASSWORD'),
-            el('button', { class: 'acct-mini', type: 'button', disabled: linkedCount < 2 ? 'disabled' : false, title: linkedCount < 2 ? 'Link another sign-in first' : '', onclick: () => unlink(p) }, 'UNLINK')]
-          : [el('button', { class: 'acct-mini go', type: 'button', onclick: showAddEmail }, 'ADD')];
+          ? [el('button', { class: 'acct-mini', type: 'button', onclick: showPassword }, 'Password'),
+            el('button', { class: 'acct-mini', type: 'button', disabled: linkedCount < 2 ? 'disabled' : false, title: linkedCount < 2 ? 'Link another sign-in first' : '', onclick: () => unlink(p) }, 'Unlink')]
+          : [el('button', { class: 'acct-mini go', type: 'button', onclick: showAddEmail }, 'Add')];
         return el('div', { class: 'acct-row', style: 'flex-wrap:wrap' }, el('span', { html: ICON[p], style: 'display:inline-flex;color:#fff' }), who, ...acts);
       }
       const who = el('div', { class: 'who' }, el('b', { text: LABEL[p] }), el('span', { text: id ? ('Linked' + (id.email ? ' · ' + id.email : id.name ? ' · ' + id.name : '')) : (providers[p] ? 'Not linked' : 'Coming soon') }));
       const action = id
-        ? el('button', { class: 'acct-mini', type: 'button', disabled: linkedCount < 2 ? 'disabled' : false, title: linkedCount < 2 ? 'Link another sign-in first' : '', onclick: () => unlink(p) }, 'UNLINK')
-        : el('button', { class: 'acct-mini go', type: 'button', disabled: providers[p] ? false : 'disabled', onclick: () => { location.href = loginUrl(p, true); } }, 'LINK');
+        ? el('button', { class: 'acct-mini', type: 'button', disabled: linkedCount < 2 ? 'disabled' : false, title: linkedCount < 2 ? 'Link another sign-in first' : '', onclick: () => unlink(p) }, 'Unlink')
+        : el('button', { class: 'acct-mini go', type: 'button', disabled: providers[p] ? false : 'disabled', onclick: () => { location.href = loginUrl(p, true); } }, 'Link');
       return el('div', { class: 'acct-row' }, el('span', { html: ICON[p], style: 'display:inline-flex;color:#fff' }), who, action);
     });
     statusLine = null;
     const status = el('p', { style: 'font-size:13px;color:var(--muted)', 'aria-live': 'polite', text: dirty ? 'Saving…' : 'Your stats are saved to your account.' });
-    open('YOUR ACCOUNT',
-      el('div', { style: 'display:flex;flex-direction:column;gap:8px' }, el('h3', { text: 'DISPLAY NAME' }),
-        el('div', { style: 'display:flex;gap:8px' }, nameIn, el('button', { class: 'btn btn-gold btn-sm', type: 'button', onclick: saveName }, 'SAVE')), nameMsg),
+    open('Your account',
+      el('div', { style: 'display:flex;flex-direction:column;gap:8px' }, el('h3', { text: 'Display name' }),
+        el('div', { style: 'display:flex;gap:8px' }, nameIn, el('button', { class: 'btn btn-gold btn-sm', type: 'button', onclick: saveName }, 'Save')), nameMsg),
       el('div', { style: 'display:flex;flex-direction:column;gap:10px' }, ...summary()),
       status,
-      el('div', { style: 'display:flex;flex-direction:column;gap:8px' }, el('h3', { text: 'LINKED SIGN-INS' }), ...rows),
+      el('div', { style: 'display:flex;flex-direction:column;gap:8px' }, el('h3', { text: 'Linked sign-ins' }), ...rows),
       el('div', { class: 'acct-foot' },
-        el('button', { class: 'btn btn-acc btn-sm', type: 'button', onclick: signOut }, 'SIGN OUT'),
-        el('button', { class: 'btn btn-ghost btn-sm', style: 'border-width:2px', type: 'button', onclick: close }, 'CLOSE')),
+        el('button', { class: 'btn btn-acc btn-sm', type: 'button', onclick: signOut }, 'Sign out'),
+        el('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: close }, 'Close')),
       el('button', { class: 'acct-link', type: 'button', onclick: confirmDelete }, 'Delete my account'));
     statusLine = status;
   }
@@ -357,13 +361,13 @@ window.RTTAccount = (function () {
     location.reload();
   }
   function confirmDelete() {
-    open('DELETE ACCOUNT?',
+    open('Delete account?',
       el('p', { text: 'This permanently deletes your account and the stats saved to it. Scores already on the global leaderboard stay there. This cannot be undone.' }),
       el('div', { class: 'acct-foot' },
         el('button', { class: 'btn btn-acc btn-sm', type: 'button', onclick: async () => {
           try { await post('/me/delete'); user = null; dirty = false; clearDevice(); close(); location.reload(); } catch (e) { toast(e.message, 4500); }
-        } }, 'DELETE FOREVER'),
-        el('button', { class: 'btn btn-ghost btn-sm', style: 'border-width:2px', type: 'button', onclick: showAccount }, 'CANCEL')));
+        } }, 'Delete forever'),
+        el('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: showAccount }, 'Cancel')));
   }
 
   // ---------- start-up ----------

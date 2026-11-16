@@ -194,13 +194,13 @@ function renderHome() {
   $('resumeRow').classList.toggle('hidden', !saved);
   if (saved) $('resumeInfo').textContent = saved.mode === 'fantasy' ? 'Fantasy draft · ' + saved.picks.length + '/' + FSLOTS.length + ' picks' : (saved.mode === 'daily' ? 'Daily · ' : '') + fullName(saved.fr) + ' · ' + saved.picks.length + '/52 picks';
   const daily = store.get('daily', {});
-  $('dailyBtn').textContent = daily[todayStr()] ? "✓ TODAY'S DAILY DONE" : "▶ PLAY TODAY'S DAILY";
+  $('dailyBtn').textContent = daily[todayStr()] ? "✓ Today's daily done" : "Play today's daily";
   const last = store.get('last', null);
   const pips = $('lastPips'); pips.replaceChildren();
   for (let i = 0; i < 17; i++) pips.append(el('div', { class: 'pip' + (last ? (last.seq[i] === 'W' ? ' w' : ' l') : '') }));
   if (last) {
     $('lastW').textContent = pad2(last.w); $('lastL').textContent = pad2(last.l); $('lastTeam').textContent = last.fr;
-    $('lastCap').textContent = last.result.toUpperCase();
+    $('lastCap').textContent = last.result;
   }
   $('lastStatsBtn').classList.toggle('hidden', !(last && last.stats));
 renderRecords(); renderFRecords(); loadLeaderboard();
@@ -215,7 +215,7 @@ function renderRecords() {
 }
 function startFree(fr) {
   const go = () => newRun('free', fr);
-  if (store.get('run', null)) modal('START A NEW DRAFT?', el('p', { text: 'You have a draft in progress. Starting a new one will replace it.' }), [['START NEW', 'btn-acc', go], ['CANCEL', 'btn-ghost', null]]);
+  if (store.get('run', null)) modal('Start a new draft?', el('p', { text: 'You have a draft in progress. Starting a new one will replace it.' }), [['Start new', 'btn-acc', go], ['Cancel', 'btn-ghost', null]]);
   else go();
 }
 function startDaily() {
@@ -224,16 +224,16 @@ function startDaily() {
   if (saved && saved.mode === 'daily' && saved.date === todayStr()) { S = saved; openDraft(); return; }
   if (daily[todayStr()]) {
     const d = daily[todayStr()];
-    modal("TODAY'S DAILY IS DONE", el('p', { text: `You went ${d.w}-${d.l} with the ${fullName(d.fr)}. ${d.result}. A new board opens at midnight.` }), [['OK', 'btn-gold', null]]);
+    modal("Today's daily is done", el('p', { text: `You went ${d.w}-${d.l} with the ${fullName(d.fr)}. ${d.result}. A new board opens at midnight.` }), [['OK', 'btn-gold', null]]);
     return;
   }
   const go = () => newRun('daily');
-  if (saved) modal('START THE DAILY?', el('p', { text: 'You have a free-play draft in progress. Starting the daily will replace it.' }), [['START DAILY', 'btn-acc', go], ['CANCEL', 'btn-ghost', null]]);
+  if (saved) modal('Start the daily?', el('p', { text: 'You have a free-play draft in progress. Starting the daily will replace it.' }), [['Start daily', 'btn-acc', go], ['Cancel', 'btn-ghost', null]]);
   else go();
 }
 
 // ---------- wheel ----------
-const COLORS = ['#ff7a1a', '#ffd23f', '#6ee7a0', '#7dd3fc'];
+const COLORS = ['#C6FF3D', '#2A313A', '#9BE15D', '#3A434F'];
 let wheelRot = 0;
 function buildWheel() {
   const svg = $('wheel'), ns = 'http://www.w3.org/2000/svg', n = FR_KEYS.length, R = 156;
@@ -242,17 +242,17 @@ function buildWheel() {
     const a0 = (i / n) * 2 * Math.PI - Math.PI / 2, a1 = ((i + 1) / n) * 2 * Math.PI - Math.PI / 2;
     const p = document.createElementNS(ns, 'path');
     p.setAttribute('d', `M0 0 L${R * Math.cos(a0)} ${R * Math.sin(a0)} A${R} ${R} 0 0 1 ${R * Math.cos(a1)} ${R * Math.sin(a1)} Z`);
-    p.setAttribute('fill', i % 2 ? '#151c18' : COLORS[(i / 2) % 4 | 0]);
-    p.setAttribute('stroke', '#0a0f0c'); p.setAttribute('stroke-width', '2');
+    p.setAttribute('fill', i % 2 ? '#151A20' : (i / 2) % 2 ? '#2A313A' : '#C6FF3D');
+    p.setAttribute('stroke', '#0B0D10'); p.setAttribute('stroke-width', '1.5');
     svg.append(p);
     const mid = (i + 0.5) / n * 360;
     const t = document.createElementNS(ns, 'text');
     t.setAttribute('transform', `rotate(${mid}) translate(0 -118) rotate(90)`);
-    t.setAttribute('fill', i % 2 ? '#ffffff' : '#0a0f0c'); t.setAttribute('font-size', '9');
-    t.setAttribute('font-family', "'Press Start 2P', monospace"); t.setAttribute('text-anchor', 'middle'); t.setAttribute('dominant-baseline', 'middle');
+    t.setAttribute('fill', i % 2 || (i / 2) % 2 ? '#F2F4F5' : '#0B0D10'); t.setAttribute('font-size', '11'); t.setAttribute('font-weight', '700');
+    t.setAttribute('font-family', "'Space Grotesk', sans-serif"); t.setAttribute('text-anchor', 'middle'); t.setAttribute('dominant-baseline', 'middle');
     t.textContent = fr; svg.append(t);
   });
-  const ring = document.createElementNS(ns, 'circle'); ring.setAttribute('r', R); ring.setAttribute('fill', 'none'); ring.setAttribute('stroke', '#fff'); ring.setAttribute('stroke-width', '4'); svg.append(ring);
+  const ring = document.createElementNS(ns, 'circle'); ring.setAttribute('r', R); ring.setAttribute('fill', 'none'); ring.setAttribute('stroke', '#262C34'); ring.setAttribute('stroke-width', '3'); svg.append(ring);
 }
 function spinWheelTo(fr, quick) {
   const i = FR_KEYS.indexOf(fr), seg = 360 / FR_KEYS.length;
@@ -281,9 +281,9 @@ function rollYear(years, final, ms) {
 let posFilter = 'OPEN', busy = false;
 function openDraft() {
   show('draft');
-  $('dMode').textContent = S.mode === 'fantasy' ? 'FANTASY DRAFT · PPR · 9 SPINS' : S.mode === 'daily' ? 'DAILY BOARD · ' + S.date : 'FREE PLAY';
-  $('dTitle').textContent = isF() ? 'YOUR FANTASY LINEUP' : fullName(S.fr).toUpperCase();
-  const dh = $('filled').previousElementSibling; if (dh) dh.textContent = isF() ? 'LINEUP' : 'DEPTH CHART';
+  $('dMode').textContent = S.mode === 'fantasy' ? 'Fantasy draft · PPR · 9 spins' : S.mode === 'daily' ? 'Daily board · ' + S.date : 'Free play';
+  $('dTitle').textContent = isF() ? 'Your fantasy lineup' : fullName(S.fr);
+  const dh = $('filled').previousElementSibling; if (dh) dh.textContent = isF() ? 'Lineup' : 'Depth chart';
   $('showRatings').checked = !!S.showRatings;
   $('quickSpin').checked = store.get('quick', false);
   const sp = S.spin;
@@ -299,10 +299,10 @@ function renderDraft() {
   $('rName').textContent = sp.fr ? `${sp.y} ${histName(sp.fr, sp.y)}` : '';
   $('hub').textContent = sp.fr ? sp.fr : 'SPIN';
   const sb = $('spinBtn');
-  if (n >= total() || (n === total() - 1 && sp.phase === 'picked')) { sb.textContent = isF() ? '▶ PLAY FANTASY SEASON' : '▶ PLAY THE SEASON'; sb.disabled = false; }
-  else if (sp.phase === 'picked') { sb.textContent = '▶ LOCK IN & SPIN'; sb.disabled = false; }
-  else if (sp.phase === 'ready') { sb.textContent = '▶ SPIN'; sb.disabled = false; }
-  else { sb.textContent = '▶ SPIN'; sb.disabled = true; }
+  if (n >= total() || (n === total() - 1 && sp.phase === 'picked')) { sb.textContent = isF() ? 'Play fantasy season' : 'Play the season'; sb.disabled = false; }
+  else if (sp.phase === 'picked') { sb.textContent = 'Lock in & spin'; sb.disabled = false; }
+  else if (sp.phase === 'ready') { sb.textContent = 'Spin'; sb.disabled = false; }
+  else { sb.textContent = 'Spin'; sb.disabled = true; }
   if (busy) sb.disabled = true;
   const canYear = !busy && !sp.yearUsed && (sp.phase === 'picking' || sp.phase === 'picked') && YEARS[sp.fr] && YEARS[sp.fr].length > 1;
   $('resetYearBtn').disabled = !canYear; $('ryCt').textContent = sp.yearUsed ? '0' : '1';
@@ -318,23 +318,23 @@ else if (n >= total()) msg.textContent = isF() ? 'Lineup set. Hit Play Fantasy S
   else if (sp.phase === 'picked') msg.textContent = `Drafted ${sp.pending.name} (${sp.pending.pos}). Lock it in, or use a reset.`;
   renderFreeSpin(sp.phase === 'picking' && elig === 0 && sp.yearUsed && sp.teamUsed);
 const af = $('autoFillBtn');
-if (af) { af.disabled = busy || openSpots() <= 0; af.textContent = (n === 0 && !sp.pending) ? '⚡ RANDOM ROSTER' : '⚡ AUTO-FILL REST'; }
+if (af) { af.disabled = busy || openSpots() <= 0; af.textContent = (n === 0 && !sp.pending) ? 'Random roster' : 'Auto-fill rest'; }
   renderList(); renderDepth(); save();
 }
 function renderFreeSpin(on) {
   let b = $('freeSpinBtn');
-  if (on && !b) { b = el('button', { id: 'freeSpinBtn', class: 'btn btn-gold btn-sm', onclick: freeSpin }, 'FREE RE-SPIN'); $('spinBtn').after(b); }
+  if (on && !b) { b = el('button', { id: 'freeSpinBtn', class: 'btn btn-gold btn-sm', onclick: freeSpin }, 'Free re-spin'); $('spinBtn').after(b); }
   if (!on && b) b.remove();
 }
 function renderList() {
   const sp = S.spin, list = $('plist'), tabs = $('ptabs');
   list.replaceChildren(); tabs.replaceChildren();
   if (!sp.fr || sp.phase === 'ready') {
-    $('pickTitle').textContent = 'ROSTER'; $('pickSub').textContent = '';
+    $('pickTitle').textContent = 'Roster'; $('pickSub').textContent = '';
     list.append(el('p', { style: 'margin:0;color:var(--muted)', text: 'Spin the wheel to load a roster.' })); return;
   }
   const ros = draftRoster(sp.fr, sp.y);
-  $('pickTitle').textContent = `${sp.y} ${sp.fr} ROSTER`;
+  $('pickTitle').textContent = `${sp.y} ${sp.fr} roster`;
   $('pickSub').textContent = ros.length + ' players';
   const counts = { OPEN: ros.filter(eligible).length, ALL: ros.length };
   const TABS = isF() ? FPOS : POS;
@@ -342,7 +342,7 @@ function renderList() {
   for (const t of ['OPEN', 'ALL', ...TABS]) {
     if (TABS.includes(t) && !counts[t]) continue;
     tabs.append(el('button', { class: 'ptab', 'aria-pressed': posFilter === t ? 'true' : 'false', onclick: () => { posFilter = t; renderList(); } },
-      t === 'OPEN' ? 'OPEN SPOTS' : t, el('span', { class: 'c', text: counts[t] })));
+      t === 'OPEN' ? 'Open spots' : t === 'ALL' ? 'All' : t, el('span', { class: 'c', text: counts[t] })));
   }
   const q = $('search').value.trim().toLowerCase();
   let rows = ros.filter((x) => posFilter === 'ALL' ? true : posFilter === 'OPEN' ? eligible(x) : x.pos === posFilter);
@@ -366,7 +366,7 @@ function renderDepth() {
   if (isF()) {
     const fall = S.picks.slice(); if (S.spin.pending) fall.push(Object.assign({ isNew: true }, S.spin.pending));
     $('filled').textContent = fall.length + '/' + FSLOTS.length;
-    const g = el('div', { class: 'dgroup' }, el('h4', {}, el('span', { text: 'STARTERS' }), el('span', { text: fall.length + '/' + FSLOTS.length })));
+    const g = el('div', { class: 'dgroup' }, el('h4', {}, el('span', { text: 'Starters' }), el('span', { text: fall.length + '/' + FSLOTS.length })));
     const sl = el('div', { class: 'slots' });
     for (const x of fAssign(fall)) {
       sl.append(x.p ? el('div', { class: 'slot' + (x.p.isNew ? ' new' : '') }, el('span', { text: x.s + ' · ' + x.p.name + (S.showRatings ? ' · ' + x.p.ovr : '') }), el('span', { class: 'src', text: shortYr(x.p.y) + ' ' + x.p.fr })) : el('div', { class: 'slot empty', text: x.s + (x.s === 'FLEX' ? ' (RB/WR/TE)' : '') + ' · Open' }));
@@ -514,7 +514,7 @@ $('rTeam').textContent = '—'; $('rYear').textContent = '—';
 renderDraft();
 if (res.dream) {
 beep(523, .12); setTimeout(() => beep(659, .12), 130); setTimeout(() => beep(784, .12), 260); setTimeout(() => beep(1047, .3), 390);
-modal('★ DREAM TEAM ★', el('p', { text: 'The 1-in-1,200 roll hit. Every open spot just got the best player available. Go run the table.' }), [['LET\'S GO', 'btn-gold', null]]);
+modal('Dream team', el('p', { text: 'The 1-in-1,200 roll hit. Every open spot just got the best player available. Go run the table.' }), [['Let\'s go', 'btn-gold', null]]);
 } else { beep(880, .12); toast(`Filled ${res.added} spot${res.added === 1 ? '' : 's'} at random`); }
 }
 function dreamPick(pos, taken) {
@@ -531,13 +531,13 @@ function autoFill() {
 if (busy || !S || S.done) return;
 const open = openSpots(); if (open <= 0) return;
 const fresh = !S.picks.length && !S.spin.pending;
-modal(fresh ? 'RANDOM TEAM?' : 'AUTO-FILL OPEN SPOTS?',
+modal(fresh ? 'Random team?' : 'Auto-fill open spots?',
 el('p', { text: fresh ? 'Fill all 52 spots with random players from random teams and seasons. No ratings involved.' : `Fill your ${open} open spot${open === 1 ? '' : 's'} with random players from random teams and seasons. Everyone you already drafted stays.` }),
-[[fresh ? 'GENERATE' : 'FILL IT', 'btn-acc', () => afterFill(randomFill())], ['CANCEL', 'btn-ghost', null]]);
+[[fresh ? 'Generate' : 'Fill it', 'btn-acc', () => afterFill(randomFill())], ['Cancel', 'btn-ghost', null]]);
 }
 function autoDraftNew() {
 const go = () => { newRun('free', pick(Math.random, AUTO_FR)); afterFill(randomFill()); };
-if (store.get('run', null)) modal('START A NEW DRAFT?', el('p', { text: 'You have a draft in progress. Generating a random team will replace it.' }), [['GENERATE', 'btn-acc', go], ['CANCEL', 'btn-ghost', null]]);
+if (store.get('run', null)) modal('Start a new draft?', el('p', { text: 'You have a draft in progress. Generating a random team will replace it.' }), [['Generate', 'btn-acc', go], ['Cancel', 'btn-ghost', null]]);
 else go();
 }
 
@@ -548,8 +548,8 @@ async function runSeason() {
   const T = teamRating(S.picks);
   const r = rng(S.seed + '|season|' + S.picks.map((p) => p.pid).join('.'));
   const sched = G.schedule[S.fr];
-  $('sMode').textContent = (S.mode === 'daily' ? 'DAILY · ' + S.date + ' · ' : '') + '2026 SEASON';
-  $('sTitle').textContent = fullName(S.fr).toUpperCase();
+  $('sMode').textContent = (S.mode === 'daily' ? 'Daily · ' + S.date + ' · ' : '') + '2026 season';
+  $('sTitle').textContent = fullName(S.fr);
   $('sOvr').textContent = T.toFixed(1);
   const games = $('games'); games.replaceChildren(); $('pgames').replaceChildren();
   $('playoffs').classList.add('hidden'); $('banner').classList.add('hidden');
@@ -595,7 +595,7 @@ const ST = statsInit(S.picks), sr = rng(S.seed + '|stats|' + S.picks.length + '|
   else if (exitRound === 'missed') result = `${w}-${l}, missed the playoffs`;
   else result = `${w}-${l}, lost in the ${exitRound.toLowerCase().replace('wild card', 'wild card round').replace('conference', 'conference championship').replace('divisional', 'divisional round').replace('super bowl', 'Super Bowl')}`;
   // banner
-  $('bTitle').textContent = w === 17 && ring ? 'YOU RAN THE TABLE!' : w === 17 ? '17-0 · PERFECT SEASON!' : ring ? 'SUPER BOWL CHAMPS!' : w >= 13 ? 'SO CLOSE.' : w >= 10 ? 'PLAYOFF TEAM' : 'BACK TO THE DRAFT BOARD';
+  $('bTitle').textContent = w === 17 && ring ? 'You ran the table.' : w === 17 ? '17–0. Perfect season.' : ring ? 'Super Bowl champs.' : w >= 13 ? 'So close.' : w >= 10 ? 'Playoff team.' : 'Back to the draft board.';
   $('bSub').textContent = result + ' · Team OVR ' + T.toFixed(1);
   $('banner').classList.remove('hidden'); syncPostBtn();
   $('skipBtn').classList.add('hidden');
@@ -631,7 +631,7 @@ function viewRoster() {
     const mine = S.picks.filter((x) => x.pos === p).sort((a, b) => b.ovr - a.ovr);
     box.append(el('div', {}, el('b', { text: p + ': ' }), mine.map((x) => `${x.name} (${shortYr(x.y)} ${x.fr}, ${x.ovr})`).join(', ')));
   }
-  modal('YOUR 52-MAN ROSTER', box, [['CLOSE', 'btn-gold', null]]);
+  modal('Your 52-man roster', box, [['Close', 'btn-gold', null]]);
 }
 
 // ---------- player stats ----------
@@ -641,21 +641,22 @@ st.textContent = `
 .rtt-wide{max-width:920px!important;max-height:90vh;overflow-y:auto}
 .st-sub{margin:0 0 12px;color:var(--soft);font-size:13px}
 .st-seg,.st-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
-.st-tab{font-family:'Press Start 2P',monospace;font-size:9px;line-height:1.4;padding:9px 10px;background:transparent;color:#fff;border:2px solid var(--line2);box-shadow:none}
-.st-tab[aria-pressed=true]{background:var(--gold);color:var(--ink);border-color:var(--gold)}
-.st-seg .st-tab[aria-pressed=true]{background:var(--green);border-color:var(--green)}
-.st-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:2px solid var(--line)}
+.st-tab{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:12px;letter-spacing:.4px;line-height:1.2;padding:10px 12px;min-height:40px;background:var(--panel2);color:var(--muted);border:1px solid var(--line2);border-radius:999px}
+.st-tab:hover{color:var(--txt)}
+.st-tab[aria-pressed=true]{background:var(--acc);color:#0B0D10;border-color:var(--acc)}
+.st-seg .st-tab[aria-pressed=true]{background:var(--txt);color:#0B0D10;border-color:var(--txt)}
+.st-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:12px}
 .st-tbl{width:100%;border-collapse:collapse;font-size:13px;white-space:nowrap}
-.st-tbl th{font-family:'Press Start 2P',monospace;font-weight:400;font-size:8px;color:var(--muted);text-align:right;padding:9px 7px;border-bottom:2px solid var(--line);background:var(--panel)}
+.st-tbl th{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:11px;letter-spacing:.6px;color:var(--muted);text-align:right;padding:10px 8px;border-bottom:1px solid var(--line);background:var(--panel)}
 .st-tbl td{text-align:right;padding:7px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
 .st-tbl th:first-child,.st-tbl td:first-child{text-align:left;position:sticky;left:0;background:var(--panel);z-index:1}
 .st-tbl .src{color:var(--muted);font-size:11px;margin-left:6px}
 .st-tbl .ps{display:inline-block;min-width:24px;color:var(--acc);font-size:11px;font-weight:700;margin-right:6px}
 .st-tbl tr:first-child td{color:var(--gold)}
 .st-sum{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
-.st-card{border:2px solid var(--line);padding:10px;background:var(--panel2)}
-.st-card .k{font-family:'Press Start 2P',monospace;font-size:8px;color:var(--muted);line-height:1.5}
-.st-card .v{font-size:20px;font-weight:800;color:var(--gold);margin-top:6px}
+.st-card{border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--panel2)}
+.st-card .k{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:11px;letter-spacing:.6px;color:var(--muted);line-height:1.4}
+.st-card .v{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:var(--acc);margin-top:6px}
 .st-card .n{font-size:12px;color:var(--soft);margin-top:4px}
 .st-empty{margin:0;color:var(--muted)}
 .st-note{color:var(--muted);font-size:12px;margin:10px 0 0}
@@ -849,7 +850,7 @@ if (benched && tab !== 'LEADERS') kids.push(el('p', { class: 'st-note', text: `$
 box.replaceChildren(...kids);
 }
 render();
-modal('SEASON STATS', box, [['CLOSE', 'btn-gold', null]], true);
+modal('Season stats', box, [['Close', 'btn-gold', null]], true);
 }
 
 
@@ -861,13 +862,13 @@ const r1 = (x) => Math.round(x * 10) / 10;
 function fPts(r, pos, ovr) { const [m, k, sd, lo] = FMEAN[pos]; return r1(Math.max(lo, m + k * (ovr - 75) + sd * gauss(r))); }
 function cpuScore(r, ovr) { return r1(FSLOTS.reduce((t, s) => t + fPts(r, s === 'FLEX' ? 'WR' : s, ovr + 4 * gauss(r)), 0)); }
 function seasonLabels(f) {
-  const lbl = $('sOvr').previousElementSibling; if (lbl) lbl.textContent = f ? 'LINEUP OVR ' : 'TEAM OVR ';
-  $('rosterBtn').textContent = f ? 'VIEW LINEUP' : 'VIEW ROSTER';
-  const pl = $('playoffs').firstElementChild; if (pl) pl.textContent = f ? 'FANTASY PLAYOFFS' : 'PLAYOFFS';
+  const lbl = $('sOvr').previousElementSibling; if (lbl) lbl.textContent = f ? 'Lineup OVR ' : 'Team OVR ';
+  $('rosterBtn').textContent = f ? 'View lineup' : 'View roster';
+  const pl = $('playoffs').firstElementChild; if (pl) pl.textContent = f ? 'Fantasy playoffs' : 'Playoffs';
 }
 function startFantasy() {
   const go = () => newRun('fantasy');
-  if (store.get('run', null)) modal('START A FANTASY DRAFT?', el('p', { text: 'You have a draft in progress. Starting a fantasy draft will replace it.' }), [['START', 'btn-acc', go], ['CANCEL', 'btn-ghost', null]]);
+  if (store.get('run', null)) modal('Start a fantasy draft?', el('p', { text: 'You have a draft in progress. Starting a fantasy draft will replace it.' }), [['Start', 'btn-acc', go], ['Cancel', 'btn-ghost', null]]);
   else go();
 }
 async function runFantasy() {
@@ -875,8 +876,8 @@ async function runFantasy() {
   const lineup = fAssign(S.picks).map((x) => x.p);
   const ovr = lineup.reduce((t, p) => t + p.ovr, 0) / lineup.length;
   const r = rng(S.seed + '|fantasy|' + S.picks.map((p) => p.pid).join('.'));
-  $('sMode').textContent = '2026 FANTASY SEASON · PPR';
-  $('sTitle').textContent = 'FANTASY LEAGUE';
+  $('sMode').textContent = '2026 fantasy season · PPR';
+  $('sTitle').textContent = 'Fantasy league';
   $('sOvr').textContent = ovr.toFixed(1); $('sRec').textContent = '0-0';
   $('games').replaceChildren(); $('pgames').replaceChildren();
   $('playoffs').classList.add('hidden'); $('banner').classList.add('hidden');
@@ -925,7 +926,7 @@ async function runFantasy() {
   const result = ring ? (w === 17 ? 'Perfect season and fantasy champions' : 'Fantasy league champions')
     : exitRound === 'missed' ? `${w}-${l}, missed the fantasy playoffs` : `${w}-${l}, lost in the ${exitRound.toLowerCase()}`;
   pf = r1(pf);
-  $('bTitle').textContent = w === 17 && ring ? 'YOU RAN THE TABLE!' : w === 17 ? '17-0 · PERFECT SEASON!' : ring ? 'LEAGUE CHAMPS!' : w >= 12 ? 'SO CLOSE.' : w >= 10 ? 'PLAYOFF TEAM' : 'BACK TO THE WAIVER WIRE';
+  $('bTitle').textContent = w === 17 && ring ? 'You ran the table.' : w === 17 ? '17–0. Perfect season.' : ring ? 'League champs.' : w >= 12 ? 'So close.' : w >= 10 ? 'Playoff team.' : 'Back to the waiver wire.';
   $('bSub').textContent = result + ' · ' + pf.toFixed(1) + ' points';
   const tops = FS.map((p) => [p, p.wk.reduce((a, b) => a + b, 0)]).sort((a, b) => b[1] - a[1])[0];
   $('bNote').textContent = `MVP: ${tops[0].n} (${tops[0].slot}) with ${r1(tops[1]).toFixed(1)} points. ${(pf / 17).toFixed(1)} points per week.`;
@@ -942,7 +943,7 @@ function fShareText() {
 function viewLineup() {
   const box = el('div', { style: 'display:flex;flex-direction:column;gap:8px' });
   for (const x of fAssign(S.picks)) if (x.p) box.append(el('div', {}, el('b', { text: x.s + ': ' }), `${x.p.name} (${shortYr(x.p.y)} ${x.p.fr}, ${x.p.ovr})`));
-  modal('YOUR FANTASY LINEUP', box, [['CLOSE', 'btn-gold', null]]);
+  modal('Your fantasy lineup', box, [['Close', 'btn-gold', null]]);
 }
 function viewFStats() {
   const FS = S.fstats, hasPost = FS.some((p) => p.po.length);
@@ -959,7 +960,7 @@ function viewFStats() {
   const body = el('div', {},
     r ? el('p', { class: 'st-sub', text: `${r.result.startsWith(r.w + '-') ? '' : r.w + '-' + r.l + ' · '}${r.result} · PPR scoring` }) : null,
     el('div', { class: 'st-wrap' }, el('table', { class: 'st-tbl' }, el('thead', {}, el('tr', {}, ...cols.map((c) => el('th', { text: c })))), tb)));
-  modal('FANTASY POINTS', body, [['CLOSE', 'btn-gold', null]], true);
+  modal('Fantasy points', body, [['Close', 'btn-gold', null]], true);
 }
 function renderFRecords() {
   const fh = store.get('fhistory', []); if (!fh.length) return;
@@ -1015,7 +1016,7 @@ $('rosterBtn').addEventListener('click', viewRoster);
 $('shareBtn').addEventListener('click', async () => {
   const t = shareText();
   try { await navigator.clipboard.writeText(t); toast('Result copied'); }
-  catch (e) { modal('YOUR RESULT', el('pre', { style: 'white-space:pre-wrap;margin:0;font-family:inherit', text: t }), [['CLOSE', 'btn-gold', null]]); }
+  catch (e) { modal('Your result', el('pre', { style: 'white-space:pre-wrap;margin:0;font-family:inherit', text: t }), [['Close', 'btn-gold', null]]); }
 });
 $('soundBtn').setAttribute('aria-pressed', String(soundOn));
 $('soundBtn').addEventListener('click', () => { soundOn = !soundOn; store.set('sound', soundOn); $('soundBtn').setAttribute('aria-pressed', String(soundOn)); beep(660, .1); });
@@ -1025,9 +1026,9 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') $('modal')
 $('shareBtn').after(el('button', { id: 'postBtn', class: 'btn btn-green btn-sm', onclick: postRun }, 'POST TO LEADERBOARD'));
 $('rosterBtn').before(el('button', { id: 'statsBtn', class: 'btn btn-green btn-sm', onclick: () => { if (S && S.mode === 'fantasy') { if (S.fstats) viewFStats(); } else if (S && S.stats) viewStats(S.stats, S.result); } }, 'PLAYER STATS'));
 $('lastCap').after(el('button', { id: 'lastStatsBtn', class: 'btn btn-green btn-sm hidden', onclick: () => { const l = store.get('last', null); if (l && l.stats) viewStats(l.stats, l); } }, 'PLAYER STATS'));
-$('spinBtn').parentElement.append(el('button', { id: 'autoFillBtn', class: 'btn btn-gold btn-sm', onclick: autoFill }, '⚡ AUTO-FILL REST'));
-$('randomTeamBtn').after(el('button', { id: 'autoDraftBtn', class: 'btn btn-gold btn-sm', onclick: autoDraftNew }, '⚡ INSTANT RANDOM TEAM'));
-$('dailyBtn').parentElement.append(el('button', { id: 'fantasyBtn', class: 'btn btn-gold', onclick: startFantasy }, '★ SMALLER DRAFT FANTASY STYLE'));
+$('spinBtn').parentElement.append(el('button', { id: 'autoFillBtn', class: 'btn btn-gold btn-sm', onclick: autoFill }, 'Auto-fill rest'));
+$('randomTeamBtn').after(el('button', { id: 'autoDraftBtn', class: 'btn btn-gold btn-sm', onclick: autoDraftNew }, 'Instant random team'));
+$('dailyBtn').parentElement.append(el('button', { id: 'fantasyBtn', class: 'btn btn-gold', onclick: startFantasy }, 'Fantasy draft (9 spins)'));
 buildWheel();
 renderHome();
 initShared();

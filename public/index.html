@@ -3,171 +3,182 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="google-adsense-account" content="ca-pub-5736406934768901">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5736406934768901" crossorigin="anonymous"></script>
 <title>Run the Table</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--turf:#0e3b24;--turf2:#10422a;--ink:#0a0f0c;--panel:#0a0f0c;--panel2:#151c18;--line:#2a332e;--line2:#3c4a42;--muted:#b5c2ba;--soft:#d6e2db;--acc:#ff7a1a;--gold:#ffd23f;--green:#6ee7a0;--red:#ff6b5b}
+:root{--bg:#0B0D10;--panel:#12161B;--panel2:#171C22;--line:#1E232A;--line2:#262C34;--txt:#F2F4F5;--muted:#9AA3AD;--soft:#A7B0BA;--acc:#C6FF3D;--acc2:#E2FF9A;--gold:#C6FF3D;--green:#C6FF3D;--red:#FF6B6B;--r:16px}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;color:#fff;font-family:Inter,system-ui,sans-serif;background-color:var(--turf);background-image:repeating-linear-gradient(90deg,var(--turf) 0,var(--turf) 120px,var(--turf2) 120px,var(--turf2) 240px);min-height:100vh}
-a{color:#fff}a:hover{color:var(--gold)}
+body{margin:0;color:var(--txt);font-family:Inter,system-ui,sans-serif;background:var(--bg);min-height:100vh;-webkit-font-smoothing:antialiased}
+a{color:var(--acc)}a:hover{color:var(--acc2)}
 button{font-family:inherit;cursor:pointer}
-button:disabled{cursor:not-allowed;opacity:.45}
-:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
-.px{font-family:'Press Start 2P',monospace;font-weight:400}
-.wrap{max-width:1240px;margin:0 auto;padding:0 32px}
+button:disabled{cursor:not-allowed;opacity:.4}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.px{font-family:'Space Grotesk',sans-serif;font-weight:600}
+.wrap{max-width:1200px;margin:0 auto;padding:0 40px}
 @media (max-width:640px){.wrap{padding:0 16px}}
 .hidden{display:none!important}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
 /* header */
-.top{background:var(--ink);border-bottom:4px solid var(--acc);position:sticky;top:0;z-index:20}
-.top .wrap{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding-top:12px;padding-bottom:12px}
-.brand{display:flex;align-items:center;gap:12px;background:none;border:0;color:var(--gold);padding:8px 0}
-.brand .px{font-size:15px}
+.top{background:rgba(11,13,16,.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.top .wrap{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding-top:14px;padding-bottom:14px}
+.brand{display:flex;align-items:center;gap:10px;background:none;border:0;color:var(--txt);padding:6px 0;min-height:44px}
+.brand .mark{width:28px;height:28px;border-radius:8px;background:var(--acc);display:flex;align-items:center;justify-content:center}
+.brand .name{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;letter-spacing:-.3px}
 .nav{display:flex;flex-wrap:wrap;align-items:center;gap:4px}
-.nav a,.nav button.link{font-size:15px;font-weight:500;padding:12px 12px;text-decoration:none;background:none;border:0;color:#fff}
-.iconbtn{background:transparent;color:#fff;border:2px solid var(--line2);width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center}
-.iconbtn[aria-pressed=true]{border-color:var(--gold);color:var(--gold)}
+.nav button.link{font-size:14px;font-weight:500;padding:12px 14px;background:none;border:0;color:var(--muted);border-radius:10px}
+.nav button.link:hover{color:var(--txt);background:var(--panel)}
+.iconbtn{background:transparent;color:var(--muted);border:1px solid var(--line2);border-radius:10px;width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center}
+.iconbtn[aria-pressed=true]{border-color:var(--acc);color:var(--acc)}
 /* buttons */
-.btn{font-family:'Press Start 2P',monospace;font-size:13px;border:0;padding:18px 22px;line-height:1.4;box-shadow:6px 6px 0 var(--ink);transition:transform .06s}
-.btn:active:not(:disabled){transform:translate(3px,3px);box-shadow:3px 3px 0 var(--ink)}
-.btn-acc{background:var(--acc);color:var(--ink)}
-.btn-gold{background:var(--gold);color:var(--ink);box-shadow:4px 4px 0 #b8891a}
-.btn-green{background:var(--green);color:var(--ink)}
-.btn-ghost{background:transparent;color:#fff;border:3px solid #fff;box-shadow:none}
-.btn-sm{font-size:10px;padding:12px 14px;box-shadow:4px 4px 0 var(--ink)}
-.panel{background:var(--panel);border:4px solid var(--line);box-shadow:10px 10px 0 rgba(0,0,0,.45)}
-.tag{font-family:'Press Start 2P',monospace;font-size:10px;padding:6px 8px;color:var(--ink);display:inline-block}
-h2.sec{font-family:'Press Start 2P',monospace;font-weight:400;font-size:20px;line-height:1.5;margin:0}
+.btn{font-family:inherit;font-weight:600;font-size:16px;border:0;border-radius:12px;padding:16px 24px;line-height:1.2;min-height:48px;transition:transform .08s,background .15s,border-color .15s}
+.btn:active:not(:disabled){transform:scale(.98)}
+.btn-acc{background:var(--acc);color:#0B0D10}
+.btn-acc:hover:not(:disabled){background:var(--acc2)}
+.btn-gold{background:var(--panel2);color:var(--txt);border:1px solid var(--line2)}
+.btn-gold:hover:not(:disabled){border-color:var(--acc)}
+.btn-green{background:var(--acc);color:#0B0D10}
+.btn-ghost{background:transparent;color:var(--txt);border:1px solid var(--line2)}
+.btn-ghost:hover:not(:disabled){background:var(--panel)}
+.btn-sm{font-size:14px;padding:12px 16px;min-height:44px;border-radius:10px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:20px}
+.tag{font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;display:inline-block}
+h2.sec{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:26px;letter-spacing:-.5px;line-height:1.2;margin:0}
 /* hero */
-.hero{display:flex;flex-wrap:wrap;align-items:center;gap:48px;padding:64px 0 56px}
-.hero .copy{flex:1 1 480px;display:flex;flex-direction:column;gap:24px}
-.hero h1{margin:0;font-family:'Press Start 2P',monospace;font-weight:400;font-size:clamp(36px,5.4vw,72px);line-height:1.15;color:var(--gold);text-shadow:5px 5px 0 #c2381f,10px 10px 0 var(--ink)}
-.kicker{margin:0;font-family:'Press Start 2P',monospace;font-size:11px;letter-spacing:2px;color:var(--acc)}
-.lede{margin:0;max-width:540px;font-size:19px;line-height:1.6;color:var(--soft)}
-.row{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
-.board{flex:1 1 400px;padding:24px;display:flex;flex-direction:column;gap:20px}
-.board .hd{display:flex;justify-content:space-between;font-family:'Press Start 2P',monospace;font-size:11px;color:var(--muted)}
-.digits{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-.digit{background:var(--panel2);border:2px solid var(--line);padding:18px 10px;text-align:center;display:flex;flex-direction:column;gap:14px}
+.hero{display:flex;flex-wrap:wrap;align-items:center;gap:48px;padding:72px 0 64px}
+.hero .copy{flex:1 1 520px;display:flex;flex-direction:column;gap:24px}
+.hero h1{margin:0;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(42px,5.6vw,72px);line-height:1.02;letter-spacing:-2.5px}
+.kicker{align-self:flex-start;margin:0;font-size:13px;font-weight:500;color:var(--acc);border:1px solid #3A4A1A;background:#151A0C;padding:6px 12px;border-radius:999px}
+.lede{margin:0;max-width:540px;font-size:18px;line-height:1.6;color:var(--soft)}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.board{flex:1 1 380px;padding:24px;display:flex;flex-direction:column;gap:20px}
+.board .hd{display:flex;justify-content:space-between;font-size:13px;color:var(--muted)}
+.board .hd #lastTeam{color:var(--txt);font-weight:500}
+.digits{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.digit{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:6px}
 .digit p{margin:0}
-.digit .lbl{font-family:'Press Start 2P',monospace;font-size:11px;color:var(--muted)}
-.digit .num{font-family:'Press Start 2P',monospace;font-size:clamp(40px,6vw,64px);line-height:1}
+.digit .lbl{font-size:13px;color:var(--muted)}
+.digit .num{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(44px,5.5vw,60px);line-height:1;letter-spacing:-1px}
 .pips{display:grid;grid-template-columns:repeat(17,minmax(0,1fr));gap:4px}
-.pip{aspect-ratio:1;border:2px solid var(--line2);background:var(--panel2)}
-.pip.w{background:var(--green);border-color:var(--green)}
-.pip.l{background:var(--red);border-color:var(--red)}
-.cap{margin:0;font-family:'Press Start 2P',monospace;font-size:10px;line-height:1.8;color:var(--muted);text-align:center}
+.pip{height:22px;border-radius:4px;background:var(--panel2);border:1px solid var(--line2)}
+.pip.w{background:var(--acc);border-color:var(--acc)}
+.pip.l{background:#5A2A30;border-color:#7A3A42}
+.cap{margin:0;font-size:13px;color:var(--muted)}
 /* team grid */
-.teams{padding:32px;display:flex;flex-direction:column;gap:24px}
-.teamgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px}
-.tbtn{text-align:left;background:var(--panel2);color:#fff;border:2px solid var(--line);padding:12px;display:flex;flex-direction:column;gap:8px;box-shadow:3px 3px 0 #000;position:relative}
-.tbtn:hover{border-color:var(--acc)}
-.tbtn .ab{font-family:'Press Start 2P',monospace;font-size:14px}
+.teams{padding:28px;display:flex;flex-direction:column;gap:20px}
+.teamgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:10px}
+.tbtn{text-align:left;background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:6px;position:relative;transition:border-color .15s,transform .1s}
+.tbtn:hover{border-color:var(--acc);transform:translateY(-1px)}
+.tbtn .ab{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:17px}
 .tbtn .cf{font-size:12px;color:var(--muted)}
-.tbtn.done{border-color:var(--gold)}
-.tbtn.done::after{content:'17-0';position:absolute;top:8px;right:8px;font-family:'Press Start 2P',monospace;font-size:8px;color:var(--gold)}
-.meter{width:160px;height:16px;border:2px solid var(--acc);padding:2px}
-.meter>div{height:100%;background:var(--acc)}
+.tbtn.done{border-color:#4E6420}
+.tbtn.done::after{content:'17–0';position:absolute;top:10px;right:10px;font-size:11px;font-weight:700;color:var(--acc)}
+.meter{width:140px;height:8px;border-radius:999px;background:var(--line2);overflow:hidden}
+.meter>div{height:100%;background:var(--acc);border-radius:999px}
+.toggle{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--soft);cursor:pointer;min-height:44px}
+.toggle input{width:18px;height:18px;accent-color:var(--acc)}
 /* modes + rules */
-.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
-.mode{background:var(--panel);border:4px solid var(--line);padding:24px;display:flex;flex-direction:column;gap:14px;box-shadow:6px 6px 0 rgba(0,0,0,.45)}
-.mode h3{margin:0;font-family:'Press Start 2P',monospace;font-weight:400;font-size:15px;line-height:1.5}
+.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.mode{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:24px;display:flex;flex-direction:column;gap:10px}
+.mode h3{margin:0;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:19px}
 .mode p{margin:0;font-size:15px;line-height:1.6;color:var(--soft)}
 .steps{margin:0;padding:0;list-style:none;display:flex;flex-direction:column}
-.steps li{display:flex;gap:24px;padding:18px 0;border-top:2px dashed rgba(255,255,255,.35);font-size:17px;line-height:1.6}
-.steps li:last-child{border-bottom:2px dashed rgba(255,255,255,.35)}
-.steps .n{font-family:'Press Start 2P',monospace;font-size:15px;color:var(--gold);min-width:48px;padding-top:4px}
+.steps li{display:flex;gap:24px;padding:20px 0;border-top:1px solid var(--line);font-size:16px;line-height:1.6;color:var(--soft)}
+.steps li b{color:var(--txt)}
+.steps li:last-child{border-bottom:1px solid var(--line)}
+.steps .n{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;color:var(--acc);min-width:40px;padding-top:2px}
 .lb{width:100%;border-collapse:collapse;font-size:15px}
-.lb th{font-family:'Press Start 2P',monospace;font-weight:400;font-size:10px;color:var(--muted);text-align:left;padding:10px 8px;border-bottom:2px solid var(--line)}
+.lb th{font-size:12px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);text-align:left;padding:10px 8px;border-bottom:1px solid var(--line2)}
 .lb td{padding:12px 8px;border-bottom:1px solid var(--line)}
-footer{background:var(--ink);border-top:4px solid var(--acc);margin-top:24px}
-footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:16px;padding-top:24px;padding-bottom:24px}
+footer{border-top:1px solid var(--line);margin-top:24px}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:16px;padding-top:24px;padding-bottom:24px;font-size:13px;color:var(--muted)}
 /* draft */
-.dhead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:16px;padding:28px 0 20px}
-.dgrid{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start;padding-bottom:48px}
+.dhead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:16px;padding:32px 0 24px}
+.chip{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px;display:flex;align-items:baseline;gap:8px;font-size:13px;color:var(--muted)}
+.chip b{font-family:'Space Grotesk',sans-serif;font-size:18px;color:var(--txt)}
+.dgrid{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start;padding-bottom:48px}
 .dmain{flex:999 1 560px;min-width:0;display:flex;flex-direction:column;gap:24px}
 .dside{flex:1 1 340px;min-width:0}
-.spinner{padding:24px;display:flex;flex-wrap:wrap;gap:28px;align-items:center}
+.spinner{padding:24px;display:flex;flex-wrap:wrap;gap:32px;align-items:center}
 .wheelbox{position:relative;width:300px;height:300px;flex:0 0 auto;margin:0 auto}
 .wheelbox svg.wheel{width:300px;height:300px;transition:transform 2.2s cubic-bezier(.12,.67,.18,1)}
-.pointer{position:absolute;left:50%;top:-6px;transform:translateX(-50%);width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-top:26px solid #fff;filter:drop-shadow(3px 3px 0 #000)}
-.hub{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:76px;height:76px;background:var(--ink);border:4px solid #fff;display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P',monospace;font-size:10px;text-align:center;line-height:1.5}
-.spininfo{flex:1 1 280px;display:flex;flex-direction:column;gap:18px}
+.pointer{position:absolute;left:50%;top:-8px;transform:translateX(-50%);width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-top:22px solid var(--txt);filter:drop-shadow(0 2px 4px rgba(0,0,0,.6))}
+.hub{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:78px;height:78px;border-radius:999px;background:var(--bg);border:2px solid var(--line2);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;text-align:center}
+.spininfo{flex:1 1 280px;display:flex;flex-direction:column;gap:16px}
 .reel{display:flex;gap:12px;align-items:stretch}
-.reelbox{background:var(--panel2);border:2px solid var(--line);padding:14px 16px;display:flex;flex-direction:column;gap:10px;flex:1}
-.reelbox .lbl{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--muted)}
-.reelbox .val{font-family:'Press Start 2P',monospace;font-size:22px;color:var(--gold);min-height:26px}
-.teamname{font-size:20px;font-weight:700;margin:0;min-height:28px}
-.resets{display:flex;flex-wrap:wrap;gap:12px}
-.rbtn{font-family:'Press Start 2P',monospace;font-size:10px;background:transparent;color:#fff;border:2px solid var(--gold);padding:12px 14px;min-height:44px}
-.rbtn .ct{color:var(--gold);margin-left:6px}
+.reelbox{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;flex:1}
+.reelbox .lbl{font-size:12px;color:var(--muted)}
+.reelbox .val{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:30px;color:var(--acc);min-height:36px;letter-spacing:-.5px}
+.teamname{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;margin:0;min-height:28px;letter-spacing:-.3px}
+.resets{display:flex;flex-wrap:wrap;gap:10px}
+.rbtn{font-size:14px;font-weight:600;background:transparent;color:var(--txt);border:1px solid var(--line2);border-radius:10px;padding:10px 14px;min-height:44px}
+.rbtn:hover:not(:disabled){border-color:var(--acc)}
+.rbtn .ct{display:inline-block;margin-left:8px;background:var(--acc);color:#0B0D10;border-radius:999px;min-width:20px;padding:1px 6px;font-size:12px}
 .msg{margin:0;font-size:15px;line-height:1.5;color:var(--soft);min-height:22px}
 .pickpanel{padding:20px;display:flex;flex-direction:column;gap:16px}
+.ptitle{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px}
 .ptabs{display:flex;flex-wrap:wrap;gap:6px}
-.ptab{font-family:'Press Start 2P',monospace;font-size:10px;background:var(--panel2);color:#fff;border:2px solid var(--line);padding:10px 10px;min-height:40px}
-.ptab[aria-pressed=true]{background:var(--acc);color:var(--ink);border-color:var(--acc)}
-.ptab .c{color:var(--muted);margin-left:4px}
-.ptab[aria-pressed=true] .c{color:var(--ink)}
-.search{width:100%;background:var(--panel2);border:2px solid var(--line);color:#fff;font-size:16px;padding:12px 14px;font-family:inherit}
+.ptab{font-size:13px;font-weight:600;background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:999px;padding:9px 14px;min-height:40px}
+.ptab[aria-pressed=true]{background:var(--acc);color:#0B0D10;border-color:var(--acc)}
+.ptab .c{color:var(--muted);margin-left:6px;font-weight:500}
+.ptab[aria-pressed=true] .c{color:#2B3A08}
+.search{width:100%;background:var(--bg);border:1px solid var(--line2);border-radius:12px;color:var(--txt);font-size:16px;padding:12px 14px;font-family:inherit}
+.search:focus{border-color:var(--acc);outline:none}
 .plist{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;max-height:520px;overflow:auto;padding-right:4px}
-.pbtn{display:flex;align-items:center;gap:10px;text-align:left;background:var(--panel2);color:#fff;border:2px solid var(--line);padding:10px 12px;min-height:48px;font-size:15px}
+.pbtn{display:flex;align-items:center;gap:10px;text-align:left;background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-height:48px;font-size:15px}
 .pbtn:hover:not(:disabled){border-color:var(--acc)}
-.pbtn .pos{font-family:'Press Start 2P',monospace;font-size:9px;background:#26302a;padding:5px 6px;min-width:34px;text-align:center}
+.pbtn .pos{font-size:11px;font-weight:700;background:var(--line2);border-radius:6px;padding:4px 6px;min-width:34px;text-align:center;color:var(--soft)}
 .pbtn .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pbtn .ov{font-family:'Press Start 2P',monospace;font-size:11px;color:var(--gold)}
+.pbtn .ov{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;color:var(--acc)}
 .pbtn .why{font-size:11px;color:var(--muted)}
-.pbtn.sel{border-color:var(--gold);background:#2a2610}
+.pbtn.sel{border-color:var(--acc);background:#1A2110}
+@media (max-width:640px){.top{position:static}.nav button.link{padding:10px 8px}.hero{padding-top:40px}.hero h1{letter-spacing:-1.5px}}
 .depth{padding:20px;display:flex;flex-direction:column;gap:14px}
-.dgroup h4{margin:0 0 8px;display:flex;justify-content:space-between;font-family:'Press Start 2P',monospace;font-weight:400;font-size:10px;color:var(--muted)}
+.dgroup h4{margin:0 0 8px;display:flex;justify-content:space-between;font-size:12px;font-weight:600;letter-spacing:.5px;color:var(--muted)}
 .slots{display:flex;flex-direction:column;gap:4px}
-.slot{display:flex;justify-content:space-between;gap:8px;font-size:13px;padding:6px 8px;background:var(--panel2);border:1px solid var(--line);min-height:30px}
-.slot.empty{border-style:dashed;color:#7f8c85}
+.slot{display:flex;justify-content:space-between;gap:8px;font-size:13px;padding:7px 10px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;min-height:32px}
+.slot.empty{border-style:dashed;color:#7D8792;background:transparent}
 .slot .src{color:var(--muted);font-size:11px;white-space:nowrap}
-.slot.new{border-color:var(--gold)}
-.toggle{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--soft);cursor:pointer;min-height:44px}
-.toggle input{width:20px;height:20px;accent-color:var(--acc)}
+.slot.new{border-color:var(--acc)}
 /* season */
 .games{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
-.game{display:flex;align-items:center;gap:12px;background:var(--panel2);border:2px solid var(--line);padding:12px 14px;font-size:15px;opacity:0;transform:translateY(6px);transition:opacity .25s,transform .25s}
+.game{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:15px;opacity:0;transform:translateY(6px);transition:opacity .25s,transform .25s}
 .game.show{opacity:1;transform:none}
-.game .wk{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--muted);min-width:44px}
-.game .res{font-family:'Press Start 2P',monospace;font-size:12px;min-width:22px}
-.game.W .res{color:var(--green)}.game.L .res{color:var(--red)}
-.game .sc{margin-left:auto;font-family:'Press Start 2P',monospace;font-size:11px}
-.banner{padding:28px;text-align:center;display:flex;flex-direction:column;gap:16px;align-items:center}
-.banner h2{margin:0;font-family:'Press Start 2P',monospace;font-weight:400;font-size:clamp(22px,3.4vw,40px);line-height:1.4;color:var(--gold);text-shadow:4px 4px 0 #c2381f}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+.game .wk{font-size:12px;font-weight:600;color:var(--muted);min-width:44px}
+.game .res{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;min-width:26px;height:26px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center}
+.game.W .res{color:#0B0D10;background:var(--acc)}.game.L .res{color:#FFD6D6;background:#5A2A30}
+.game .sc{margin-left:auto;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px}
+.banner{padding:32px;text-align:center;display:flex;flex-direction:column;gap:16px;align-items:center}
+.banner h2{margin:0;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(30px,4vw,48px);letter-spacing:-1.5px;line-height:1.1}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
 .modal .panel{max-width:520px;width:100%;padding:28px;display:flex;flex-direction:column;gap:18px}
-.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--gold);color:var(--ink);font-family:'Press Start 2P',monospace;font-size:11px;padding:14px 18px;box-shadow:4px 4px 0 #000;z-index:60}
-@media (max-width:640px){.top{position:static}.nav a,.nav button.link{padding:10px 8px;font-size:14px}.hero{padding-top:40px}}
-.pbtn.sel:disabled{opacity:1}
+#mTitle{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;letter-spacing:-.3px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--acc);color:#0B0D10;font-weight:600;font-size:14px;padding:12px 18px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.5);z-index:60}
+@media (max-width:640px){.top{position:static}.nav button.link{padding:10px 8px}.hero{padding-top:40px}.hero h1{letter-spacing:-1.5px}}
 @media (prefers-reduced-motion:reduce){.wheelbox svg.wheel{transition:none}.game{transition:none}}
-.brandrow{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.gridlink{font-family:'Press Start 2P',monospace;font-size:10px;line-height:1.4;color:var(--ink);background:var(--green);padding:9px 10px;text-decoration:none;box-shadow:3px 3px 0 #2c8a57}
-.gridlink:hover{color:var(--ink);background:#9af3c0}
-.gamenav{display:flex;align-items:center}
-.gtab{font-family:'Press Start 2P',monospace;font-weight:400;font-size:clamp(10px,2.6vw,14px);line-height:1.4;color:#fff;background:none;border:0;padding:10px clamp(12px,3vw,22px);text-decoration:none;white-space:nowrap}
-.gtab:first-child{padding-left:0}
-.gtab+.gtab{border-left:3px solid var(--line2)}
-.gtab:hover{color:var(--gold)}
-.gtab[aria-current=page]{color:var(--gold)}
+
+/* game switcher (Run the Table / Run the Grid) */
+.gamenav{display:flex;align-items:center;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:4px}
+.gtab{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;line-height:1.2;color:var(--muted);background:none;border:0;border-radius:9px;padding:10px 14px;min-height:40px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.gtab:hover{color:var(--txt)}
+.gtab[aria-current=page]{background:var(--acc);color:#0B0D10}
+.gtab .mark{width:18px;height:18px;border-radius:5px;background:#0B0D10;display:inline-flex;align-items:center;justify-content:center}
+@media (max-width:640px){.gtab{font-size:13px;padding:10px 10px}}
 </style>
 </head>
 <body>
 <header class="top">
   <div class="wrap">
     <nav class="gamenav" aria-label="Games">
-      <button class="gtab" id="homeBtn" aria-current="page">RUN THE TABLE</button>
-      <a class="gtab" href="grid.html">RUN THE GRID</a>
+      <button class="gtab" id="homeBtn" aria-current="page"><span class="mark" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#C6FF3D" stroke-width="3" stroke-linecap="round"><path d="M4 12h16M14 6l6 6-6 6"/></svg></span>Run the Table</button>
+      <a class="gtab" href="grid.html">Run the Grid</a>
     </nav>
     <nav class="nav" aria-label="Main">
       <button class="link" data-go="play">Play</button>
       <button class="link" data-go="how">How to play</button>
       <button class="link" data-go="board">Global Leaderboard</button>
-      <button class="iconbtn" id="soundBtn" aria-pressed="false" aria-label="8-bit sound">
+      <button class="iconbtn" id="soundBtn" aria-pressed="false" aria-label="Sound effects">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>
       </button>
     </nav>
@@ -180,81 +191,81 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;align-ite
   <div class="wrap">
     <div class="hero">
       <div class="copy">
-        <p class="kicker">PRESS START · 2026 SEASON</p>
-        <h1>BUILD A 52&#8209;MAN DYNASTY</h1>
-        <p class="lede">Spin the wheel 52 times. Each spin lands on a franchise and a season from 1970 to 2025. Draft one real player from that roster, then run your team through its real 2026 schedule. Can you run the table at 17–0?</p>
+        <p class="kicker">2026 season · Daily board is live</p>
+        <h1>Build a 52&#8209;man dynasty. Go 17–0.</h1>
+        <p class="lede">Spin the wheel 52 times. Each spin lands on a franchise and a season from 1970 to 2025. Draft one real player from that roster, then run your team through its real 2026 schedule.</p>
         <div class="row">
-          <button class="btn btn-acc" id="dailyBtn">▶ PLAY TODAY'S DAILY</button>
-          <button class="btn btn-ghost" data-go="play">PICK ANY TEAM</button>
+          <button class="btn btn-acc" id="dailyBtn">Play today's daily</button>
+          <button class="btn btn-gold" data-go="play">Pick any team</button>
         </div>
         <div class="row hidden" id="resumeRow">
-          <button class="btn btn-gold btn-sm" id="resumeBtn">CONTINUE DRAFT</button>
-          <span id="resumeInfo" style="font-size:15px;color:var(--soft)"></span>
+          <button class="btn btn-ghost btn-sm" id="resumeBtn">Continue draft</button>
+          <span id="resumeInfo" style="font-size:14px;color:var(--soft)"></span>
         </div>
       </div>
       <div class="panel board" aria-label="Your last season">
-        <div class="hd"><span>LAST SEASON</span><span id="lastTeam">—</span></div>
+        <div class="hd"><span>Last season</span><span id="lastTeam">—</span></div>
         <div class="digits">
-          <div class="digit"><p class="lbl">WINS</p><p class="num" id="lastW" style="color:var(--acc)">00</p></div>
-          <div class="digit"><p class="lbl">LOSSES</p><p class="num" id="lastL">00</p></div>
+          <div class="digit"><p class="lbl">Wins</p><p class="num" id="lastW" style="color:var(--acc)">00</p></div>
+          <div class="digit"><p class="lbl">Losses</p><p class="num" id="lastL">00</p></div>
         </div>
         <div class="pips" id="lastPips" role="img" aria-label="Last season's game results"></div>
-        <p class="cap" id="lastCap">17 GAMES · 0 MARGIN FOR ERROR</p>
+        <p class="cap" id="lastCap">17 games · zero margin for error</p>
       </div>
     </div>
   </div>
 
-  <div class="wrap" id="play" style="padding-bottom:56px">
+  <div class="wrap" id="play" style="padding-bottom:56px;scroll-margin-top:90px">
     <div class="panel teams">
       <div class="row" style="justify-content:space-between">
-        <h2 class="sec">SELECT YOUR FRANCHISE</h2>
+        <h2 class="sec">Select your franchise</h2>
         <div class="row" style="gap:12px">
           <span style="font-size:14px;color:var(--muted)">Perfect Run</span>
           <div class="meter" aria-hidden="true"><div id="prBar" style="width:0%"></div></div>
-          <span class="px" style="font-size:12px;color:var(--acc)" id="prCount">0/32</span>
+          <span style="font-size:14px;font-weight:700" id="prCount">0/32</span>
         </div>
       </div>
       <p style="margin:0;font-size:15px;color:var(--soft)">Your franchise sets your 2026 schedule. The wheel decides who you draft from.</p>
       <div class="teamgrid" id="teamGrid"></div>
-      <div class="row" style="border-top:2px dashed var(--line);padding-top:20px">
-        <button class="btn btn-gold btn-sm" id="randomTeamBtn">RANDOM FRANCHISE</button>
+      <div class="row" style="border-top:1px solid var(--line);padding-top:20px">
+        <button class="btn btn-gold btn-sm" id="randomTeamBtn">Random franchise</button>
         <label class="toggle"><input type="checkbox" id="showRatingsHome"> Show player ratings while drafting (easy mode)</label>
       </div>
     </div>
   </div>
 
-  <div class="wrap" style="padding-bottom:64px;display:flex;flex-direction:column;gap:28px">
-    <h2 class="sec">CHOOSE A MODE</h2>
+  <div class="wrap" style="padding-bottom:64px;display:flex;flex-direction:column;gap:24px">
+    <h2 class="sec">Choose a mode</h2>
     <div class="modes">
-      <div class="mode" style="border-color:var(--acc)">
-        <span class="tag" style="background:var(--acc)">DAILY</span>
-        <h3>DAILY BOARD</h3>
+      <div class="mode" style="border-color:#3A4A1A">
+        <span class="tag" style="color:var(--acc)">Daily</span>
+        <h3>Daily board</h3>
         <p>One official run a day. Everyone gets the same franchise and the same 52 spins. Compare your result with friends using Copy Result.</p>
       </div>
       <div class="mode">
-        <span class="tag" style="background:var(--soft)">UNLIMITED</span>
-        <h3>FREE PLAY</h3>
+        <span class="tag" style="color:var(--muted)">Unlimited</span>
+        <h3>Free play</h3>
         <p>Pick any franchise and draft as often as you like. Go 17–0 with all 32 to complete the Perfect Run.</p>
       </div>
-      <div class="mode" style="border-color:var(--green)">
-        <span class="tag" style="background:var(--green)">9 SPINS</span>
-        <h3>FANTASY DRAFT</h3>
+      <div class="mode">
+        <span class="tag" style="color:var(--muted)">9 spins</span>
+        <h3>Fantasy draft</h3>
         <p>Draft a PPR lineup instead of a full roster: QB, 2 RB, 2 WR, TE, FLEX, K and a team D/ST. Then play 17 head-to-head weeks and chase the league title.</p>
       </div>
-      <div class="mode" style="border-color:var(--gold)">
-        <span class="tag" style="background:var(--gold)">EVERY SPIN</span>
-        <h3>2 RESETS PER SPIN</h3>
+      <div class="mode">
+        <span class="tag" style="color:var(--muted)">Every spin</span>
+        <h3>2 resets per spin</h3>
         <p>Every spin gives you one Year Reset and one Team Reset. Use them on that spin or lose them.</p>
       </div>
     </div>
   </div>
 
-  <div class="wrap" id="how" style="padding-bottom:64px;display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start">
+  <div class="wrap" id="how" style="padding-bottom:64px;display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start;scroll-margin-top:90px">
     <div style="flex:1 1 320px;display:flex;flex-direction:column;gap:18px">
-      <h2 class="sec">THE PLAYBOOK</h2>
-      <p style="margin:0;font-size:17px;line-height:1.6;color:var(--soft)">52 spins and 52 roster spots. No account needed.</p>
-      <div class="panel" style="padding:18px;display:flex;flex-direction:column;gap:8px;font-size:14px;color:var(--soft)">
-        <span class="px" style="font-size:10px;color:var(--gold)">THE 52-MAN ROSTER</span>
+      <h2 class="sec">The playbook</h2>
+      <p style="margin:0;font-size:16px;line-height:1.6;color:var(--soft)">52 spins and 52 roster spots. No account needed.</p>
+      <div class="panel" style="padding:18px;display:flex;flex-direction:column;gap:8px;font-size:14px;color:var(--soft);border-radius:var(--r)">
+        <span class="eyebrow" style="color:var(--acc)">The 52-man roster</span>
         <span>3 QB · 4 RB · 6 WR · 3 TE · 9 OL</span>
         <span>9 DL · 7 LB · 9 DB · 1 K · 1 P</span>
       </div>
@@ -268,15 +279,15 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;align-ite
     </ol>
   </div>
 
-  <div class="wrap" id="board" style="padding-bottom:72px">
+  <div class="wrap" id="board" style="padding-bottom:72px;scroll-margin-top:90px">
     <div class="panel" style="padding:28px;display:flex;flex-direction:column;gap:18px">
       <div class="row" style="justify-content:space-between">
-        <h2 class="sec">GLOBAL LEADERBOARD</h2>
-        <span class="px" style="font-size:10px;color:var(--muted)" id="lbDate"></span>
+        <h2 class="sec">Global leaderboard</h2>
+        <span style="font-size:13px;color:var(--muted)" id="lbDate"></span>
       </div>
       <div id="lbBody" style="overflow-x:auto"><p style="margin:0;color:var(--soft)">Loading…</p></div>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <span class="px" style="font-size:10px;color:var(--gold)">YOUR RECORD BOOK</span>
+      <div style="display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:18px">
+        <span class="eyebrow" style="color:var(--acc)">Your record book</span>
         <div id="myRecords" style="font-size:15px;color:var(--soft);line-height:1.7"></div>
       </div>
     </div>
@@ -287,15 +298,15 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;align-ite
 <section id="view-draft" class="hidden">
   <div class="wrap">
     <div class="dhead">
-      <div style="display:flex;flex-direction:column;gap:10px">
-        <span class="px" style="font-size:10px;color:var(--acc)" id="dMode">FREE PLAY</span>
-        <h2 class="sec" id="dTitle" style="font-size:18px">YOUR FRANCHISE</h2>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <span style="font-size:13px;font-weight:600;color:var(--acc)" id="dMode">Free play</span>
+        <h2 class="sec" id="dTitle">Your franchise</h2>
       </div>
       <div class="row">
-        <div class="panel" style="padding:12px 16px;box-shadow:5px 5px 0 rgba(0,0,0,.45)"><span class="px" style="font-size:10px;color:var(--muted)">SPIN </span><span class="px" style="font-size:16px;color:var(--gold)" id="dSpin">1/52</span></div>
+        <div class="chip">Spin <b id="dSpin">1/52</b></div>
         <label class="toggle"><input type="checkbox" id="quickSpin"> Quick spin</label>
         <label class="toggle"><input type="checkbox" id="showRatings"> Show ratings</label>
-        <button class="btn btn-ghost btn-sm" id="quitBtn" style="border-width:2px">SAVE &amp; EXIT</button>
+        <button class="btn btn-ghost btn-sm" id="quitBtn">Save &amp; exit</button>
       </div>
     </div>
     <div class="dgrid">
@@ -308,23 +319,23 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;align-ite
           </div>
           <div class="spininfo">
             <div class="reel">
-              <div class="reelbox"><span class="lbl">FRANCHISE</span><span class="val" id="rTeam">—</span></div>
-              <div class="reelbox"><span class="lbl">SEASON</span><span class="val" id="rYear">—</span></div>
+              <div class="reelbox"><span class="lbl">Franchise</span><span class="val" id="rTeam">—</span></div>
+              <div class="reelbox"><span class="lbl">Season</span><span class="val" id="rYear">—</span></div>
             </div>
             <p class="teamname" id="rName" aria-live="polite"></p>
             <div class="row">
-              <button class="btn btn-acc" id="spinBtn">▶ SPIN</button>
+              <button class="btn btn-acc" id="spinBtn">Spin</button>
             </div>
             <div class="resets">
-              <button class="rbtn" id="resetYearBtn" disabled>YEAR RESET<span class="ct" id="ryCt">1</span></button>
-              <button class="rbtn" id="resetTeamBtn" disabled>TEAM RESET<span class="ct" id="rtCt">1</span></button>
+              <button class="rbtn" id="resetYearBtn" disabled>Year reset<span class="ct" id="ryCt">1</span></button>
+              <button class="rbtn" id="resetTeamBtn" disabled>Team reset<span class="ct" id="rtCt">1</span></button>
             </div>
             <p class="msg" id="dMsg" aria-live="polite">Spin to see who you're drafting from.</p>
           </div>
         </div>
         <div class="panel pickpanel" id="pickPanel">
           <div class="row" style="justify-content:space-between">
-            <span class="px" style="font-size:12px" id="pickTitle">ROSTER</span>
+            <span class="ptitle" id="pickTitle">Roster</span>
             <span style="font-size:13px;color:var(--muted)" id="pickSub"></span>
           </div>
           <div class="ptabs" id="ptabs" role="group" aria-label="Filter by position"></div>
@@ -337,8 +348,8 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;align-ite
       <aside class="dside">
         <div class="panel depth" aria-label="Your depth chart">
           <div class="row" style="justify-content:space-between">
-            <span class="px" style="font-size:12px">DEPTH CHART</span>
-            <span class="px" style="font-size:11px;color:var(--gold)" id="filled">0/52</span>
+            <span class="ptitle">Depth chart</span>
+            <span style="font-size:14px;font-weight:700;color:var(--acc)" id="filled">0/52</span>
           </div>
           <div id="depth" style="display:flex;flex-direction:column;gap:14px"></div>
         </div>
@@ -349,31 +360,31 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;align-ite
 
 <!-- ============ SEASON ============ -->
 <section id="view-season" class="hidden">
-  <div class="wrap" style="padding:32px 32px 56px;display:flex;flex-direction:column;gap:24px">
+  <div class="wrap" style="padding-top:32px;padding-bottom:56px;display:flex;flex-direction:column;gap:24px">
     <div class="row" style="justify-content:space-between">
-      <div style="display:flex;flex-direction:column;gap:10px">
-        <span class="px" style="font-size:10px;color:var(--acc)" id="sMode">2026 SEASON</span>
-        <h2 class="sec" id="sTitle" style="font-size:18px"></h2>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <span style="font-size:13px;font-weight:600;color:var(--acc)" id="sMode">2026 season</span>
+        <h2 class="sec" id="sTitle"></h2>
       </div>
       <div class="row">
-        <div class="panel" style="padding:12px 16px;box-shadow:5px 5px 0 rgba(0,0,0,.45)"><span class="px" style="font-size:10px;color:var(--muted)">TEAM OVR </span><span class="px" style="font-size:16px;color:var(--gold)" id="sOvr">—</span></div>
-        <div class="panel" style="padding:12px 16px;box-shadow:5px 5px 0 rgba(0,0,0,.45)"><span class="px" style="font-size:10px;color:var(--muted)">RECORD </span><span class="px" style="font-size:16px;color:#fff" id="sRec">0-0</span></div>
-        <button class="btn btn-ghost btn-sm" id="skipBtn" style="border-width:2px">SKIP AHEAD</button>
+        <div class="chip">Team OVR <b id="sOvr" style="color:var(--acc)">—</b></div>
+        <div class="chip">Record <b id="sRec">0-0</b></div>
+        <button class="btn btn-ghost btn-sm" id="skipBtn">Skip ahead</button>
       </div>
     </div>
     <div class="games" id="games"></div>
     <div id="playoffs" class="hidden" style="display:flex;flex-direction:column;gap:12px">
-      <span class="px" style="font-size:12px;color:var(--gold)">PLAYOFFS</span>
+      <span class="eyebrow" style="color:var(--acc)">Playoffs</span>
       <div class="games" id="pgames"></div>
     </div>
     <div class="panel banner hidden" id="banner">
       <h2 id="bTitle"></h2>
       <p style="margin:0;font-size:17px;color:var(--soft)" id="bSub"></p>
       <div class="row" style="justify-content:center">
-        <button class="btn btn-acc btn-sm" id="shareBtn">COPY RESULT</button>
-        <button class="btn btn-gold btn-sm" id="againBtn">PLAY AGAIN</button>
-        <button class="btn btn-ghost btn-sm" id="rosterBtn" style="border-width:2px">VIEW ROSTER</button>
-        <button class="btn btn-ghost btn-sm" id="homeBtn2" style="border-width:2px">HOME</button>
+        <button class="btn btn-acc btn-sm" id="shareBtn">Copy result</button>
+        <button class="btn btn-gold btn-sm" id="againBtn">Play again</button>
+        <button class="btn btn-ghost btn-sm" id="rosterBtn">View roster</button>
+        <button class="btn btn-ghost btn-sm" id="homeBtn2">Home</button>
       </div>
       <p style="margin:0;font-size:14px;color:var(--muted)" id="bNote"></p>
     </div>
@@ -383,14 +394,14 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;align-ite
 
 <footer>
   <div class="wrap">
-    <span class="px" style="font-size:10px;color:var(--muted)">© 2026 RUN THE TABLE</span>
-    <span style="font-size:13px;color:var(--muted)">Roster data: nflverse. Player ratings are this game's own estimates. Not affiliated with the NFL.</span>
+    <span>© 2026 Run the Table</span>
+    <span>Roster data: nflverse. Player ratings are this game's own estimates. Not affiliated with the NFL.</span>
   </div>
 </footer>
 
 <div class="modal hidden" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
   <div class="panel">
-    <span class="px" style="font-size:14px;color:var(--gold)" id="mTitle"></span>
+    <span id="mTitle"></span>
     <div id="mBody" style="font-size:15px;line-height:1.6;color:var(--soft);max-height:60vh;overflow:auto"></div>
     <div class="row" id="mBtns"></div>
   </div>

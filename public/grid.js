@@ -14,9 +14,9 @@ const FR = {
   SEA: ['Seattle', 'Seahawks'], TB: ['Tampa Bay', 'Buccaneers'], TEN: ['Tennessee', 'Titans'], WAS: ['Washington', 'Commanders']
 };
 const KEYS = Object.keys(FR).filter((k) => G.teams[k]).sort();
-const TILE = ['#ff7a1a', '#ffd23f', '#6ee7a0', '#7dd3fc', '#f9a8d4', '#c4b5fd'];
+const TILE = ['#C6FF3D', '#F2F4F5', '#9BE15D', '#7DD3FC', '#E2FF9A', '#C9D1D9'];
 const POSN = ['QB', 'RB', 'WR', 'TE', 'OL', 'DL', 'LB', 'DB', 'K', 'P'];
-const DOWN = ['1ST DOWN', '2ND DOWN', '3RD DOWN', '4TH DOWN'];
+const DOWN = ['1st down', '2nd down', '3rd down', '4th down'];
 const MAX = 4;
 
 // ---------- rng (same as the main game) ----------
@@ -109,13 +109,13 @@ const teamName = (k) => FR[k][0] + ' ' + FR[k][1];
 function render() {
   $('gDate').textContent = DATE;
   const left = MAX - S.misses;
-  $('downNow').textContent = S.done === 'lose' ? 'TURNOVER' : S.done === 'win' ? 'TOUCHDOWN' : DOWN[S.misses];
+  $('downNow').textContent = S.done === 'lose' ? 'Turnover' : S.done === 'win' ? 'Touchdown' : DOWN[S.misses];
   const pips = $('dpips'); pips.replaceChildren();
   for (let i = 0; i < MAX; i++) pips.append(el('span', { class: 'dpip' + (i < S.misses ? ' used' : ''), title: i < S.misses ? 'Down used' : 'Down left' }));
   $('dleft').textContent = left + (left === 1 ? ' down left' : ' downs left');
   $('scoreNow').textContent = score();
   const b = $('board'); b.replaceChildren();
-  b.append(el('div', { class: 'corner', text: 'PLAYED FOR BOTH' }));
+  b.append(el('div', { class: 'corner', text: 'Played for both' }));
   GRID.cols.forEach((k, i) => b.append(teamHead(k, i + 3)));
   for (let r = 0; r < 3; r++) {
     b.append(teamHead(GRID.rows[r], r));
@@ -129,7 +129,7 @@ function render() {
   }
   $('shareBtn').classList.toggle('hidden', !S.done);
   $('giveBtn').classList.toggle('hidden', !!S.done);
-  const pb = $('postBtn'); pb.classList.toggle('hidden', !S.done); const posted = window.RTTLB && RTTLB.isPosted('grid|' + DATE); pb.disabled = !!posted || !window.RTTLB; pb.textContent = posted ? 'POSTED ✓' : 'POST TO LEADERBOARD';
+  const pb = $('postBtn'); pb.classList.toggle('hidden', !S.done); const posted = window.RTTLB && RTTLB.isPosted('grid|' + DATE); pb.disabled = !!posted || !window.RTTLB; pb.textContent = posted ? 'Posted ✓' : 'Post to leaderboard';
   const filled = S.cells.filter((x) => x != null).length;
   $('gNote').textContent = S.done ? `${filled}/9 filled · New grid at midnight` : `${filled}/9 filled · Each wrong guess costs a down. A correct guess keeps your drive alive.`;
 }
@@ -164,7 +164,7 @@ function openGuess(i) {
   input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { const f = list.querySelector('.rbtn2'); if (f) f.click(); } });
   const body = el('div', {}, el('p', { style: 'margin:0 0 12px', text: `Name a player who played for the ${teamName(a)} and the ${teamName(b)}.` }), input, list);
   draw();
-  modal(DOWN[S.misses] + ' · ' + a + ' + ' + b, body, [['CANCEL', 'btn-ghost', null]], () => input.focus());
+  modal(DOWN[S.misses] + ' · ' + a + ' + ' + b, body, [['Cancel', 'btn-ghost', null]], () => input.focus());
 }
 async function guess(i, p) {
   if (S.done) return;
@@ -184,28 +184,28 @@ async function guess(i, p) {
 function turnover(p, a, b) {
   $('toast').classList.add('hidden');
   const filled = S.cells.filter((x) => x != null).length;
-  modal('TURNOVER ON DOWNS', el('div', {},
-    el('p', { class: 'tod', text: 'TURNOVER ON DOWNS' }),
+  modal('Turnover on downs', el('div', {},
+    el('p', { class: 'tod', text: 'Turnover on downs' }),
     el('p', { style: 'margin:0 0 8px', text: `${p.name} never played for both the ${FR[a][1]} and the ${FR[b][1]}. That was your 4th down.` }),
     el('p', { style: 'margin:0', text: `You filled ${filled} of 9 for ${score()} rarity points. A new grid drops at midnight.` })),
-  [['POST TO LEADERBOARD', 'btn-acc', postGrid], ['COPY RESULT', 'btn-gold', share], ['CLOSE', 'btn-ghost', null]]);
+  [['Post to leaderboard', 'btn-acc', postGrid], ['Copy result', 'btn-gold', share], ['Close', 'btn-ghost', null]]);
 }
 function touchdown() {
-  modal('TOUCHDOWN!', el('div', {},
-    el('p', { class: 'tod td', text: 'TOUCHDOWN!' }),
+  modal('Touchdown!', el('div', {},
+    el('p', { class: 'tod td', text: 'Touchdown!' }),
     el('p', { style: 'margin:0', text: `You filled all 9 squares with ${MAX - S.misses} ${MAX - S.misses === 1 ? 'down' : 'downs'} to spare, for ${score()} rarity points. A new grid drops at midnight.` })),
-  [['POST TO LEADERBOARD', 'btn-acc', postGrid], ['COPY RESULT', 'btn-gold', share], ['CLOSE', 'btn-ghost', null]]);
+  [['Post to leaderboard', 'btn-acc', postGrid], ['Copy result', 'btn-gold', share], ['Close', 'btn-ghost', null]]);
 }
 function giveUp() {
   if (S.done) return;
-  modal('GIVE UP?', el('p', { text: 'This ends today\'s grid. Answers stay hidden so nobody can look them up for today.' }), [['GIVE UP', 'btn-acc', () => { S.done = 'lose'; save(); render(); }], ['KEEP PLAYING', 'btn-ghost', null]]);
+  modal('Give up?', el('p', { text: 'This ends today\'s grid. Answers stay hidden so nobody can look them up for today.' }), [['Give up', 'btn-acc', () => { S.done = 'lose'; save(); render(); }], ['Keep playing', 'btn-ghost', null]]);
 }
 async function share() {
   const rows = [0, 1, 2].map((r) => [0, 1, 2].map((c) => S.cells[r * 3 + c] != null ? '🟩' : '⬜').join('')).join('\n');
   const filled = S.cells.filter((x) => x != null).length;
   const t = `RUN THE GRID · ${DATE}\n${rows}\n${filled}/9 · ${score()} rarity points · ${S.done === 'win' ? 'Touchdown' : 'Turnover on downs'}\nrunthetablenfl.com/grid.html`;
   try { await navigator.clipboard.writeText(t); toast('Result copied'); }
-  catch (e) { modal('YOUR RESULT', el('pre', { style: 'white-space:pre-wrap;margin:0;font-family:inherit', text: t }), [['CLOSE', 'btn-gold', null]]); }
+  catch (e) { modal('Your result', el('pre', { style: 'white-space:pre-wrap;margin:0;font-family:inherit', text: t }), [['Close', 'btn-gold', null]]); }
 }
 
 function postGrid() {
@@ -217,12 +217,12 @@ $('shareBtn').addEventListener('click', share);
 $('postBtn').addEventListener('click', postGrid);
 const lbw = window.RTTLB ? RTTLB.mount($('gridBoard'), 'grid') : null;
 $('giveBtn').addEventListener('click', giveUp);
-$('helpBtn').addEventListener('click', () => modal('HOW TO PLAY', el('div', {},
+$('helpBtn').addEventListener('click', () => modal('How to play', el('div', {},
   el('p', { style: 'margin:0 0 10px', text: 'Fill every square with a player who played for both the team on his row and the team on his column, at any point from 1970 through this season.' }),
   el('p', { style: 'margin:0 0 10px', text: 'You get 4 downs. Every wrong guess uses one. Use all 4 and it\'s a turnover on downs. Correct guesses are free.' }),
   el('p', { style: 'margin:0 0 10px', text: 'Rarity scoring: every correct pick earns up to 100 points based on how strongly that player is tied to the two teams in his square. Longtime stars with those teams (household names) earn only a few points. Backups and short stints (deep cuts) earn up to 100. Max score is 900, and you can post it to the global leaderboard.' }),
   el('p', { style: 'margin:0', text: 'Each player can only be used once. Franchises count across moves, so the Oakland Raiders are the Raiders and the Houston Oilers are the Titans. Everyone gets the same grid, and a new one drops every day at midnight.' })),
-  [['GOT IT', 'btn-gold', null]]));
+  [['Got it', 'btn-gold', null]]));
 $('modal').addEventListener('click', (e) => { if (e.target.id === 'modal') closeModal(); });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 render();
